@@ -1,4 +1,4 @@
 BrowserOS
 =========
 
-Dumb BrowserOS
+Dumb browser based terminal.
