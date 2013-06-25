@@ -52,9 +52,9 @@ var ConsoleController = function($scope) {
             return fileSystem.listDirectory(arguments[0]);
         },
         rm: function() {
-            return 'not implemented';//fileSystem.removeDirectory(arguments);
+            return 'not implemented';//fileSystem.removeDirectory(arguments); TODO
         },
-        cat: function() {
+        cat: function() { // TODO parse first parameter for path and read
             var file = fileSystem.getFromDir(arguments[0], Type.TEXT);
             if(file) {
                 return file.content;
@@ -62,7 +62,7 @@ var ConsoleController = function($scope) {
                 return "error: file '" + arguments[0] + "' does not exist";
             }
         },
-        touch: function() {
+        touch: function() { // TODO also detect path
             return fileSystem.createFile(Array.prototype.slice.call(arguments), Type.TEXT);
         }
     };
