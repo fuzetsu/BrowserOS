@@ -1,16 +1,16 @@
-// if(!localStorage.files) {
-    localStorage.files = JSON.stringify({
-        name: 'root',
-        parent: null,
-        type: 'd',
-        children: []
-    });
-// }
-
 var Type = {
     DIR: 'd',
     TEXT: 't'
 };
+
+// if(!localStorage.files) {
+    localStorage.files = JSON.stringify({
+        name: 'root',
+        parent: null,
+        type: Type.DIR,
+        children: []
+    });
+// }
 
 var ConsoleController = function($scope) {
     $scope.output = '';
