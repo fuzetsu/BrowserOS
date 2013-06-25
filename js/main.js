@@ -23,7 +23,7 @@ var ConsoleController = function($scope) {
     };
     var doCommand = function(command, parameters) {
         if(commands[command])
-            return commands[command].apply(null, parameters);
+            return commands[command].apply(commands, parameters);
         else
             return "error: command '" + command + "' not found";
     };
@@ -57,7 +57,6 @@ var ConsoleController = function($scope) {
         cat: function() {
             var file = fileSystem.getFromDir(arguments[0], Type.TEXT);
             if(file) {
-                console.log(file.content);
                 return file.content;
             } else {
                 return "error: file '" + arguments[0] + "' does not exist";
