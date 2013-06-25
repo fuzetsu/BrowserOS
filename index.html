@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html ng-app>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
+<meta name="description" content="trying out console" />
+<meta charset=utf-8 />
+<title>JS Bin</title>
+</head>
+<body>
+  <div ng-controller="ConsoleController">
+      <form ng-submit="processCommand()">
+          <input type="text" ng-model="command">
+      </form>
+      <div>
+          <pre><code>{{output}}</code></pre>
+      </div>
+  </div>
+</body>
+</html>
