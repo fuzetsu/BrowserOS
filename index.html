@@ -3,17 +3,25 @@
 <head>
 <meta charset=utf-8 />
 <title>Browser OS</title>
+<link rel="stylesheet" href="css/main.css">
+<!-- Load angular at the top just so that nothing is displayed until we're ready -->
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
+<script src="http://code.angularjs.org/1.0.7/angular-sanitize.min.js"></script>
 </head>
 <body>
-  <div ng-controller="ConsoleController">
-      <form ng-submit="processCommand()">
-          <input type="text" ng-model="command">
-      </form>
-      <div>
-          <pre><code>{{output}}</code></pre>
-      </div>
-  </div>
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
-  <script src="js/main.js"></script>
+    <div ng-controller="ConsoleController">
+        <div>
+            <code ng-repeat="line in output">
+                <span class="ps1">{{line[0]}}</span>{{line[1]}}<br>
+            </code>
+        </div>
+        <code class="cmdline"><span class="ps1">{{cmdPrompt()}}</span>{{command}}</code>
+        <form ng-submit="processCommand()">
+            <input type="text" ng-model="command" class="hidden" id="cmd">
+        </form>
+    </div>
+    <script src="js/mousetrap.min.js"></script>
+    <script src="js/mousetrap-bindGlobal.min.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>

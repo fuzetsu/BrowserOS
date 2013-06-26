@@ -1,26 +1,39 @@
-// if(!localStorage.files) {
-    localStorage.files = JSON.stringify({
-        name: 'root',
-        parent: null,
-        type: 'd',
-        children: []
-    });
-// }
-
 var Type = {
     DIR: 'd',
     TEXT: 't'
 };
 
+var cmd = document.getElementById('cmd');
+
+// if(!localStorage.files) {
+    localStorage.files = JSON.stringify({
+        name: 'root',
+        parent: null,
+        type: Type.DIR,
+        children: []
+    });
+// }
+
 var ConsoleController = function($scope) {
-    $scope.output = '';
+    $scope.command = '';
+    $scope.output = [];
+    $scope.workingDir = function() {
+        return fileSystem.getFolderPath(fileSystem.currentFolder);
+    };
+    $scope.cmdPrompt = function() {
+        return "admin@betaOS:[" + $scope.workingDir() + "]$ ";
+    };
     $scope.processCommand = function() {
-        var command = this.command.split(' ');
-        var result = doCommand(command[0], command.slice(1));
+        var command = this.command.split(' '),
+            curPrompt = this.cmdPrompt(),
+            result = doCommand(command[0], command.slice(1));
         if(result)
-            this.output = result + '\n' + this.output;
+            this.output.push([curPrompt, result]);
         this.command = '';
     };
+
+    // window.scroll(0, document.body.scrollHeight);
+
     var doCommand = function(command, parameters) {
         if(commands[command])
             return commands[command].apply(commands, parameters);
@@ -36,7 +49,7 @@ var ConsoleController = function($scope) {
             return new Date().toLocaleString();
         },
         clear: function() {
-            $scope.output = '';
+            $scope.output = [];
         },
         pwd: function() {
             return fileSystem.getCurrentPath();
@@ -52,9 +65,9 @@ var ConsoleController = function($scope) {
             return fileSystem.listDirectory(arguments[0]);
         },
         rm: function() {
-            return 'not implemented';//fileSystem.removeDirectory(arguments);
+            return 'not implemented';//fileSystem.removeDirectory(arguments); TODO
         },
-        cat: function() {
+        cat: function() { // TODO parse first parameter for path and read
             var file = fileSystem.getFromDir(arguments[0], Type.TEXT);
             if(file) {
                 return file.content;
@@ -62,10 +75,15 @@ var ConsoleController = function($scope) {
                 return "error: file '" + arguments[0] + "' does not exist";
             }
         },
-        touch: function() {
+        touch: function() { // TODO also detect path
             return fileSystem.createFile(Array.prototype.slice.call(arguments), Type.TEXT);
         }
     };
+    Mousetrap.bindGlobal('ctrl+l', function(e) {
+        commands.clear();
+        $scope.$apply();
+        return false;
+    });
 };
 
 var fileSystem = {
@@ -167,3 +185,10 @@ var fileSystem = {
 };
 
 fileSystem.init();
+
+cmd.focus();
+
+// whenever the user clicks anywhere the command box is focused
+window.addEventListener('click', function(evt) {
+    cmd.focus();
+},false);
