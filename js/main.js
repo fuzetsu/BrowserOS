@@ -25,7 +25,8 @@ var ConsoleController = function($scope) {
         return "admin@betaOS:[" + $scope.workingDir() + "]$ ";
     };
     $scope.processCommand = function() {
-        history.push(this.command);
+        if(this.command != '')
+            history.push(this.command);
         var command = this.command.split(' '),
             curPrompt = this.cmdPrompt(),
             result = ((command[0] != '') ? doCommand(command[0], command.slice(1)) : false);
