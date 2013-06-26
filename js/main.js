@@ -85,8 +85,9 @@ var ConsoleController = function($scope) {
             return fileSystem.createFile(Array.prototype.slice.call(arguments), Type.TEXT);
         },
         history: function() {
+            $scope.output.push([$scope.cmdPrompt(),  $scope.command]);
             for(var i = 0; i < history.length -1; i++)
-                $scope.output.push(['', ''], ['', history[i]]);
+                $scope.output.push(['', history[i]]);
         }
     };
     Mousetrap.bindGlobal('ctrl+l', function(e) {
