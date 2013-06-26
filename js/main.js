@@ -64,6 +64,10 @@ var ConsoleController = function($scope) {
         ls: function() {
             return fileSystem.listDirectory(arguments[0]);
         },
+        exit: function() {
+            fileSystem.sync();
+            window.close();
+        },
         rm: function() {
             return 'not implemented';//fileSystem.removeDirectory(arguments); TODO
         },
@@ -189,6 +193,6 @@ fileSystem.init();
 cmd.focus();
 
 // whenever the user clicks anywhere the command box is focused
-window.addEventListener('click', function(evt) {
+(window.addEventListener || window.attachEvent)('click', function(evt) {
     cmd.focus();
 },false);
