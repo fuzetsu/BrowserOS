@@ -193,6 +193,12 @@ fileSystem.init();
 cmd.focus();
 
 // whenever the user clicks anywhere the command box is focused
-(window.addEventListener || window.attachEvent)('click', function(evt) {
-    cmd.focus();
-},false);
+if(!window.addEventListener) {
+    window.attachEvent('onclick', function(evt) {
+        cmd.focus();
+    });
+} else {
+    window.addEventListener('click', function(evt) {
+        cmd.focus();
+    },false);
+}
