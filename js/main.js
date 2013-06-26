@@ -4,6 +4,7 @@ var Type = {
 };
 
 var cmd = document.getElementById('cmd');
+var history = new Array();
 
 // if(!localStorage.files) {
     localStorage.files = JSON.stringify({
@@ -24,9 +25,10 @@ var ConsoleController = function($scope) {
         return "admin@betaOS:[" + $scope.workingDir() + "]$ ";
     };
     $scope.processCommand = function() {
+        history.push(this.command);
         var command = this.command.split(' '),
             curPrompt = this.cmdPrompt(),
-            result = doCommand(command[0], command.slice(1));
+            result = ((command[0] != '') ? doCommand(command[0], command.slice(1)) : false);
         if(result)
             this.output.push([curPrompt, this.command], ['',result]);
         this.command = '';
@@ -81,6 +83,11 @@ var ConsoleController = function($scope) {
         },
         touch: function() { // TODO also detect path
             return fileSystem.createFile(Array.prototype.slice.call(arguments), Type.TEXT);
+        },
+        history: function() {
+            $scope.output.push([$scope.cmdPrompt(),  $scope.command]);
+            for(var i = 0; i < history.length -1; i++)
+                $scope.output.push(['', history[i]]);
         }
     };
     Mousetrap.bindGlobal('ctrl+l', function(e) {
