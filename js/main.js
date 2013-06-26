@@ -96,26 +96,26 @@ var fileSystem = {
         fileSystem.currentFolder = fileSystem.root;
     },
     createFile: function(files, type) {
-        for(var i = 0; i < files.length; i++) {
+        _.each(files, function(file) {
             this.currentFolder.children.push({
-                name: files[i],
+                name: file,
                 type: type,
                 content: ''
             });
-        }
+        }, this);
         this.sync();
         return "success: created file(s) '" + files.join(', ') + "'";
     },
     newFolder: function(folders) {
         var parentPath = this.getFolderPath(this.currentFolder);
-        for(var i = 0; i < folders.length; i++) {
+        _.each(folders, function(folder) {
             this.currentFolder.children.push({
-                name: folders[i],
+                name: folder,
                 parent: parentPath,
                 type: 'd',
                 children: []
             });
-        }
+        }, this);
         this.sync();
         return "success: created folder(s) '" + folders.join(', ') + "'";
     },
@@ -154,10 +154,10 @@ var fileSystem = {
         dir = dir || this.currentFolder;
         var children = dir.children;
         if(!children) return null;
-        for(var i = 0; i < children.length; i++) {
-            if(children[i].name === name && children[i].type == type)
-                return children[i];
-        }
+        return _.find(children, function(child) {
+            if(child.name === name && child.type == type)
+                return true;
+        });
     },
     getFolder: function(path) {
         return (path) ? this.goToFolder(path, true) : null;
@@ -175,7 +175,7 @@ var fileSystem = {
         else
             dir = this.currentFolder;
         if(dir && dir.children) {
-            return dir.children.map(function(child) {
+            return _.map(dir.children, function(child) {
                 return child.type + ':' + child.name;
             }).join(', ') || "empty directory";
         } else {
