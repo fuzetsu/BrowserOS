@@ -1,0 +1,31 @@
+body{
+    background:black;
+    color:white;
+}
+
+/*#cmd{
+background:black;
+color:inherit;
+border:none;
+}*/
+
+pre {
+    margin: 0;
+}
+
+.hidden {
+    position:absolute;
+    left:-10000px;
+    top:auto;
+    overflow:hidden;
+}
+
+.ps1 {
+    color: red;
+    font-weight:bold;
+}
+
+.cmdline:after {
+    color: orange;
+    content: '║';
+}
