@@ -28,7 +28,7 @@ var ConsoleController = function($scope) {
             curPrompt = this.cmdPrompt(),
             result = doCommand(command[0], command.slice(1));
         if(result)
-            this.output.push([curPrompt, result]);
+            this.output.push([curPrompt, this.command], ['',result]);
         this.command = '';
     };
 
