@@ -35,6 +35,10 @@ var ConsoleController = function($scope) {
             if(result)
                 this.output.push([curPrompt, this.command], ['',result]);
             this.command = '';
+            // scroll to bottom after render
+            setTimeout(function() {
+                window.scroll(0, document.body.scrollHeight);
+            }, 0);
         }
     };
 
