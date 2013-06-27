@@ -25,14 +25,17 @@ var ConsoleController = function($scope) {
         return "admin@betaOS:[" + $scope.workingDir() + "]$ ";
     };
     $scope.processCommand = function() {
-        if(this.command != '')
+        if(this.command) {
+            var command = this.command.split(' '),
+                curPrompt = this.cmdPrompt(),
+                result = (command[0]) ? doCommand(command[0], _.filter(command.slice(1), function(command) {
+                    return command && command.trim();
+                })) : false;
             history.push(this.command);
-        var command = this.command.split(' '),
-            curPrompt = this.cmdPrompt(),
-            result = ((command[0] != '') ? doCommand(command[0], command.slice(1)) : false);
-        if(result)
-            this.output.push([curPrompt, this.command], ['',result]);
-        this.command = '';
+            if(result)
+                this.output.push([curPrompt, this.command], ['',result]);
+            this.command = '';
+        }
     };
 
     // window.scroll(0, document.body.scrollHeight);
