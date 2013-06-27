@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html ng-app>
+<html ng-app="browserOS">
 <head>
 <meta charset=utf-8 />
 <title>Browser OS</title>
 <link rel="stylesheet" href="css/main.css">
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
 </head>
 <body>
     <div ng-controller="ConsoleController">
@@ -18,6 +17,7 @@
             <input type="text" ng-model="command" class="hidden" id="cmd">
         </form>
     </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
     <script src="js/lodash.compat.js"></script>
     <script src="js/mousetrap.min.js"></script>
     <script src="js/mousetrap-bindGlobal.min.js"></script>
