@@ -68,7 +68,9 @@
                 // if there was a result returned then push that as well
                 if (result) {
                     if(result instanceof Array) {
-                        $scope.output = $scope.output.concat(result);
+                        $scope.output = $scope.output.concat(_.map(result, function(line) {
+                            return ['', line];
+                        }));
                     } else {
                         $scope.output.push(['', result]);
                     }
@@ -187,7 +189,7 @@
             history: function() {
                 var result = [];
                 _.each(commandHistory, function(command) {
-                    result.push(['', command]);
+                    result.push([command]);
                 });
                 return result;
             },
@@ -215,8 +217,13 @@
             aliases: function() {
                 var result = [];
                 _.forOwn(aliases, function(command, alias) {
-                    result.push(['', alias + '="' + command + '"']);
+                    result.push([alias + '="' + command + '"']);
                 });
+                return result;
+            },
+            help: function() {
+                var result = ["You can use the following commands:"];
+                result.push(_.keys(commands).join(', '));
                 return result;
             }
         };
