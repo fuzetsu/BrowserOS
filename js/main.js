@@ -56,7 +56,7 @@
         };
 
         // makes the calls necessary to process a command and display its output
-        var processCommand = function(commandStr) {
+        var processCommand = function(commandStr, alias) {
             if (commandStr) {
                 var command = parseArgumentLine(commandStr),
                     curPrompt = $scope.cmdPrompt(),
@@ -64,8 +64,8 @@
                 commandHistory.push(commandStr);
                 // if we just got redirected to an alias then exit
                 if(result === false) return;
-                // always push the prompt line
-                $scope.output.push([curPrompt, commandStr]);
+                // always push the prompt line (if an alias was specified display that instead)
+                $scope.output.push([curPrompt, alias || commandStr]);
                 // if there was a result returned then push that as well
                 if (result) {
                     if(result instanceof Array) {
@@ -130,7 +130,7 @@
         // executes a command and hands off the passed parameters to it
         var doCommand = function(command, parameters) {
             if(aliases[command]) {
-                processCommand(aliases[command]);
+                processCommand(aliases[command], command);
                 return false;
             } else if (commands[command]) {
                 return commands[command].apply(commands, parameters);
