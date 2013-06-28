@@ -115,7 +115,7 @@
             },
             cd: function() {
                 if (!arguments[0]) return "usage: cd <path>";
-                fileSystem.goToFolder(arguments[0]);
+                return fileSystem.goToFolder(arguments[0]);
             },
             mkdir: function() {
                 if (!arguments[0]) return "usage: mkdir <dir name>";
@@ -216,7 +216,6 @@
                 return "error: invalid path";
             } else {
                 this.currentFolder = lastFolder;
-                return this.getCurrentPath();
             }
         },
         getFromDir: function(name, type, dir) {
