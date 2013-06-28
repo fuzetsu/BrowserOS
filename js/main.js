@@ -201,18 +201,20 @@
                 } else {
                     var action = arguments[0],
                         aliasName = arguments[1],
-                        command = arguments[2];
+                        command = arguments[2],
+                        returnMsg;
                     if((action === "del" && arguments.length !== 2) || (action === "set" && arguments.length !== 3)) return usage;
                     if(action === "set") {
                         aliases[aliasName] = command;
-                        fileSystem.sync();
-                        return "created alias '" + aliasName + "=" + command + "'";
+                        returnMsg = "created alias '" + aliasName + "=" + command + "'";
                     } else {
                         if(!aliases[aliasName]) return "alias '" + aliasName + "' does not exist.";
                         delete aliases[aliasName];
                         fileSystem.sync();
-                        return "deleted alias '" + aliasName + "'";
+                        returnMsg = "deleted alias '" + aliasName + "'";
                     }
+                    fileSystem.sync();
+                    return returnMsg;
                 }
             },
             aliases: function() {
