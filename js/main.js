@@ -101,6 +101,7 @@
 
         var commands = {
             echo: function() {
+                if (!arguments[0]) return "usage: echo <statement>";
                 return Array.prototype.slice.call(arguments).join(' ');
             },
             date: function() {
@@ -117,6 +118,7 @@
                 return fileSystem.goToFolder(arguments[0]);
             },
             mkdir: function() {
+                if (!arguments[0]) return "usage: cd <dir name>";
                 return fileSystem.newFolder(Array.prototype.slice.call(arguments));
             },
             ls: function() {
@@ -127,9 +129,11 @@
                 window.close();
             },
             rm: function() {
+                if (!arguments[0]) return "usage: rm <file name>";
                 return 'not implemented'; //fileSystem.removeDirectory(arguments); TODO
             },
             cat: function() { // TODO parse first parameter for path and read
+                if (!arguments[0]) return "usage: cat <file name>";
                 var file = fileSystem.getFromDir(arguments[0], Type.TEXT);
                 if (file) {
                     return file.content;
@@ -138,6 +142,7 @@
                 }
             },
             touch: function() { // TODO also detect path
+                if (!arguments[0]) return "usage: touch <file name>";
                 return fileSystem.createFile(Array.prototype.slice.call(arguments), Type.TEXT);
             },
             history: function() {
