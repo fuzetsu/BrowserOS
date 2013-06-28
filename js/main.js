@@ -13,6 +13,13 @@
     // array to hold a history of the commands entered
     var commandHistory = [];
 
+    // if aliases arent int local storage add them
+    if(!localStorage.aliases) {
+        localStorage.aliases = JSON.stringify({});
+    }
+    // object to hold aliases
+    var aliases = JSON.parse(localStorage.aliases);
+
     // if(!localStorage.files) {
     // initial setup of file-system in local-storage
     localStorage.files = JSON.stringify({
@@ -43,19 +50,30 @@
             return "admin@betaOS:[" + $scope.workingDir() + "]$ ";
         };
         // called when the user submits a command to process it
-        $scope.processCommand = function() {
-            if (this.command) {
-                var command = parseArgumentLine(this.command),
-                    curPrompt = this.cmdPrompt(),
-                    result = (command[0]) ? doCommand(command[0], _.filter(command.slice(1), function(command) {
-                        return command && command.trim();
-                    })) : false;
-                commandHistory.push(this.command);
+        $scope.execCommand = function() {
+            processCommand(this.command);
+        };
+
+        // makes the calls necessary to process a command and display its output
+        var processCommand = function(commandStr) {
+            if (commandStr) {
+                var command = parseArgumentLine(commandStr),
+                    curPrompt = $scope.cmdPrompt(),
+                    result = doCommand(command[0], command.slice(1));
+                commandHistory.push(commandStr);
+                // if we just got redirected to an alias then exit
+                if(result === false) return;
                 // always push the prompt line
-                this.output.push([curPrompt, this.command]);
+                $scope.output.push([curPrompt, commandStr]);
                 // if there was a result returned then push that as well
-                if (result) this.output.push(['', result]);
-                this.command = '';
+                if (result) {
+                    if(result instanceof Array) {
+                        $scope.output = $scope.output.concat(result);
+                    } else {
+                        $scope.output.push(['', result]);
+                    }
+                }
+                $scope.command = '';
                 // scroll to bottom after render
                 setTimeout(function() {
                     window.scroll(0, document.body.scrollHeight);
@@ -109,10 +127,14 @@
 
         // executes a command and hands off the passed parameters to it
         var doCommand = function(command, parameters) {
-            if (commands[command])
+            if(aliases[command]) {
+                processCommand(aliases[command]);
+                return false;
+            } else if (commands[command]) {
                 return commands[command].apply(commands, parameters);
-            else
+            } else {
                 return "error: command '" + command + "' not found";
+            }
         };
 
         // object containing all base commands and their implementations
@@ -163,10 +185,39 @@
                 return fileSystem.createFile(Array.prototype.slice.call(arguments), Type.TEXT);
             },
             history: function() {
-                $scope.output.push([$scope.cmdPrompt(), $scope.command]);
+                var result = [];
                 _.each(commandHistory, function(command) {
-                    $scope.output.push(['', command]);
+                    result.push(['', command]);
                 });
+                return result;
+            },
+            alias: function() {
+                var usage = "usage: alias <set|del> <alias_name> [<command>]";
+                if(!arguments[0] || _.indexOf(['set','del'], arguments[0]) === -1) {
+                    return usage;
+                } else {
+                    var action = arguments[0],
+                        aliasName = arguments[1],
+                        command = arguments[2];
+                    if((action === "del" && arguments.length !== 2) || (action === "set" && arguments.length !== 3)) return usage;
+                    if(action === "set") {
+                        aliases[aliasName] = command;
+                        fileSystem.sync();
+                        return "created alias '" + aliasName + "=" + command + "'";
+                    } else {
+                        if(!aliases[aliasName]) return "alias '" + aliasName + "' does not exist.";
+                        delete aliases[aliasName];
+                        fileSystem.sync();
+                        return "deleted alias '" + aliasName + "'";
+                    }
+                }
+            },
+            aliases: function() {
+                var result = [];
+                _.forOwn(aliases, function(command, alias) {
+                    result.push(['', alias + '="' + command + '"']);
+                });
+                return result;
             }
         };
         Mousetrap.bindGlobal(['ctrl+l','command+l'], function(e) {
@@ -270,8 +321,10 @@
             }
         },
         sync: function() {
+            localStorage.aliases = JSON.stringify(aliases);
             localStorage.files = JSON.stringify(this.root);
             console.log(localStorage.files);
+            console.log(localStorage.aliases);
         }
     };
 
