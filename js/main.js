@@ -229,6 +229,7 @@
             }
         };
         Mousetrap.bindGlobal(['ctrl+l','command+l'], function(e) {
+            $scope.command = '';
             commands.clear();
             $scope.$apply();
             return false;
