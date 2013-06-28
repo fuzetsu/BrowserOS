@@ -52,6 +52,7 @@
         // called when the user submits a command to process it
         $scope.execCommand = function() {
             processCommand(this.command);
+            $scope.command = '';
         };
 
         // makes the calls necessary to process a command and display its output
@@ -75,7 +76,6 @@
                         $scope.output.push(['', result]);
                     }
                 }
-                $scope.command = '';
                 // scroll to bottom after render
                 setTimeout(function() {
                     window.scroll(0, document.body.scrollHeight);
@@ -150,6 +150,7 @@
             },
             clear: function() {
                 $scope.output = [];
+                return false;
             },
             pwd: function() {
                 return fileSystem.getCurrentPath();
