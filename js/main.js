@@ -1,15 +1,20 @@
 (function() {
     "use strict";
 
+    // global type definitions
     var Type = {
         DIR: 'd',
         TEXT: 't'
     };
 
+    // hidden text input element where commands are entered
     var cmd = document.getElementById('cmd');
+
+    // array to hold a history of the commands entered
     var commandHistory = [];
 
     // if(!localStorage.files) {
+    // initial setup of file-system in local-storage
     localStorage.files = JSON.stringify({
         name: 'root',
         parent: null,
@@ -18,17 +23,26 @@
     });
     // }
 
+    // create angular module
     var app = angular.module('browserOS',[]);
 
+    // register ConsoleController into our angular module
     app.controller('ConsoleController', function($scope) {
+
+        // initialize our command
         $scope.command = '';
+        // initialize array that holds the output on the screen
         $scope.output = [];
+
+        // retrieves current working directory in string form
         $scope.workingDir = function() {
             return fileSystem.getFolderPath(fileSystem.currentFolder);
         };
+        // builds the prompt line
         $scope.cmdPrompt = function() {
             return "admin@betaOS:[" + $scope.workingDir() + "]$ ";
         };
+        // called when the user submits a command to process it
         $scope.processCommand = function() {
             if (this.command) {
                 var command = parseArgumentLine(this.command),
@@ -49,6 +63,7 @@
             }
         };
 
+        // ridiculous function to go through the command and create the array of command / parameters
         var parseArgumentLine = function(argumentLine) {
             var result = [],
                 current,
@@ -92,6 +107,7 @@
             return result;
         };
 
+        // executes a command and hands off the passed parameters to it
         var doCommand = function(command, parameters) {
             if (commands[command])
                 return commands[command].apply(commands, parameters);
@@ -99,6 +115,7 @@
                 return "error: command '" + command + "' not found";
         };
 
+        // object containing all base commands and their implementations
         var commands = {
             echo: function() {
                 if (!arguments[0]) return "usage: echo <statement>";
@@ -159,6 +176,8 @@
         });
     });
 
+    // TODO - maybe this needs to be moved into it's own module / file
+    // simple filesystem related functions
     var fileSystem = {
         root: JSON.parse(localStorage.files),
         init: function() {
@@ -256,6 +275,7 @@
         }
     };
 
+    // initialize the filesystem
     fileSystem.init();
 
     // focus on the input at start
