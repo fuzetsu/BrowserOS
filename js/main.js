@@ -31,7 +31,7 @@
         };
         $scope.processCommand = function() {
             if (this.command) {
-                var command = this.command.split(' '),
+                var command = parseArgumentLine(this.command),
                     curPrompt = this.cmdPrompt(),
                     result = (command[0]) ? doCommand(command[0], _.filter(command.slice(1), function(command) {
                         return command && command.trim();
@@ -45,6 +45,49 @@
                     window.scroll(0, document.body.scrollHeight);
                 }, 0);
             }
+        };
+
+        var parseArgumentLine = function(argumentLine) {
+            var result = [],
+                current,
+                characters = argumentLine.split('').reverse(),
+                reset = true,
+                c = characters.pop();
+            while(c) {
+                while(c === ' ') {
+                    c = characters.pop();
+                }
+                if(c === '"') {
+                    if(reset) current = '';
+                    c = characters.pop();
+                    while(c && c !== '"') {
+                        current += c;
+                        c = characters.pop();
+                    }
+                    if(c === '"') {
+                        c = characters.pop();
+                    }
+                    if(c && c !== ' ' && c !== '"') {
+                        reset = false;
+                    } else {
+                        result.push(current);
+                        reset = true;
+                    }
+                } else {
+                    if(reset) current = '';
+                    do {
+                        current += c;
+                        c = characters.pop();
+                    } while(c && c !== ' ' && c !== '"');
+                    if(c !== '"') {
+                        result.push(current);
+                        reset = true;
+                    } else {
+                        reset = false;
+                    }
+                }
+            }
+            return result;
         };
 
         // window.scroll(0, document.body.scrollHeight);
@@ -104,7 +147,7 @@
                 });
             }
         };
-        Mousetrap.bindGlobal('ctrl+l', function(e) {
+        Mousetrap.bindGlobal(['ctrl+l','command+l'], function(e) {
             commands.clear();
             $scope.$apply();
             return false;
