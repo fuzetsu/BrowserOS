@@ -37,8 +37,10 @@
                         return command && command.trim();
                     })) : false;
                 commandHistory.push(this.command);
-                if (result)
-                    this.output.push([curPrompt, this.command], ['', result]);
+                // always push the prompt line
+                this.output.push([curPrompt, this.command]);
+                // if there was a result returned then push that as well
+                if (result) this.output.push(['', result]);
                 this.command = '';
                 // scroll to bottom after render
                 setTimeout(function() {
