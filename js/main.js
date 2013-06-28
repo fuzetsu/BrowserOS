@@ -190,7 +190,7 @@
             history: function() {
                 var result = [];
                 _.each(commandHistory, function(command) {
-                    result.push([command]);
+                    result.push(command);
                 });
                 return result;
             },
@@ -220,7 +220,7 @@
             aliases: function() {
                 var result = [];
                 _.forOwn(aliases, function(command, alias) {
-                    result.push([alias + '="' + command + '"']);
+                    result.push(alias + '="' + command + '"');
                 });
                 return result;
             },
