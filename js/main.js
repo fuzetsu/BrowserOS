@@ -90,8 +90,6 @@
             return result;
         };
 
-        // window.scroll(0, document.body.scrollHeight);
-
         var doCommand = function(command, parameters) {
             if (commands[command])
                 return commands[command].apply(commands, parameters);
@@ -115,10 +113,10 @@
             },
             cd: function() {
                 if (!arguments[0]) return "usage: cd <path>";
-                return fileSystem.goToFolder(arguments[0]);
+                fileSystem.goToFolder(arguments[0]);
             },
             mkdir: function() {
-                if (!arguments[0]) return "usage: cd <dir name>";
+                if (!arguments[0]) return "usage: mkdir <dir name>";
                 return fileSystem.newFolder(Array.prototype.slice.call(arguments));
             },
             ls: function() {
@@ -232,7 +230,7 @@
             return (path) ? this.goToFolder(path, true) : null;
         },
         getCurrentPath: function() {
-            return 'cd: ' + (this.getFolderPath(this.currentFolder));
+            return this.getFolderPath(this.currentFolder);
         },
         getFolderPath: function(dir) {
             if (!dir.parent) return dir.name;
