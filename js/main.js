@@ -324,9 +324,12 @@
             else
                 dir = this.currentFolder;
             if (dir && dir.children) {
-                return _.map(dir.children, function(child) {
-                    return child.type + ':' + child.name;
-                }).join(', ') || "empty directory";
+                return _.filter(
+                    _.map(dir.children, function(child) {
+                        return child.type + ':' + child.name;
+                    }), function (el){ 
+                        return el.charAt(2)!=".";
+                }).sort().join(', ') || "empty directory";
             } else {
                 return 'error: invalid path';
             }
