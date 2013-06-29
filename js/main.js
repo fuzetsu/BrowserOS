@@ -213,7 +213,7 @@
             history: function() {
                 var result = [];
                 if(arguments[0] == "-c"){
-                    commandHistory = [];
+                    commandHistory.length = 0;
                     result.push("history successfully cleared");
                 }
                 else{
