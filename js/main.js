@@ -210,7 +210,6 @@
                     } else {
                         if(!aliases[aliasName]) return "alias '" + aliasName + "' does not exist.";
                         delete aliases[aliasName];
-                        fileSystem.sync();
                         returnMsg = "deleted alias '" + aliasName + "'";
                     }
                     fileSystem.sync();
@@ -327,7 +326,7 @@
                 return _.filter(
                     _.map(dir.children, function(child) {
                         return child.type + ':' + child.name;
-                    }), function (el){ 
+                    }), function (el){
                         return el.charAt(2)!=".";
                 }).sort().join(', ') || "empty directory";
             } else {
