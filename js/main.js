@@ -12,6 +12,7 @@
 
     // array to hold a history of the commands entered
     var commandHistory = [];
+    var historyIndex;
 
     // if aliases arent int local storage add them
     if(!localStorage.aliases) {
@@ -62,6 +63,7 @@
                     curPrompt = $scope.cmdPrompt(),
                     result = doCommand(command[0], command.slice(1));
                 commandHistory.push(commandStr);
+                historyIndex = commandHistory.length;
                 // if we just got redirected to an alias then exit
                 if(result === false) return;
                 // always push the prompt line (if an alias was specified display that instead)
@@ -232,6 +234,20 @@
         Mousetrap.bindGlobal(['ctrl+l','command+l'], function(e) {
             $scope.command = '';
             commands.clear();
+            $scope.$apply();
+            return false;
+        });
+        Mousetrap.bindGlobal(['up'], function(e) {
+            if(historyIndex > 0)
+                --historyIndex;
+            $scope.command = commandHistory[historyIndex];
+            $scope.$apply();
+            return false;
+        });
+        Mousetrap.bindGlobal(['down'], function(e) {
+            if(historyIndex < commandHistory.length - 1)
+                ++historyIndex;
+            $scope.command = commandHistory[historyIndex];
             $scope.$apply();
             return false;
         });
