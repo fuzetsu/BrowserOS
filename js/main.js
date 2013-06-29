@@ -10,20 +10,40 @@
     // hidden text input element where commands are entered
     var cmd = document.getElementById('cmd');
 
-    // array to hold a history of the commands entered
-    var commandHistory = [];
-    var historyIndex;
-
     // if aliases arent int local storage add them
     if(!localStorage.aliases) {
         localStorage.aliases = JSON.stringify({});
     }
+
+    // if history isn't in local storage add it
+    if(!localStorage.commandHistory) {
+        localStorage.commandHistory = JSON.stringify([]);
+    }
+
+    // if settings isn't in local storage add it
+    if(!localStorage.settings) {
+        localStorage.settings = JSON.stringify([]);
+    }
+
+    // namespace to hold system related variables
+    var system = {};
+
+    // array to hold a history of the commands entered
+    system.commandHistory = JSON.parse(localStorage.commandHistory);
+    var commandHistory = system.commandHistory;
+    var historyIndex = commandHistory.length;
+
     // object to hold aliases
-    var aliases = JSON.parse(localStorage.aliases);
+    system.aliases = JSON.parse(localStorage.aliases);
+    var aliases = system.aliases;
+
+    // object to hold settings
+    system.settings = JSON.parse(localStorage.settings);
+    var settings = system.settings;
 
     // if(!localStorage.files) {
     // initial setup of file-system in local-storage
-    localStorage.files = JSON.stringify({
+    localStorage.root = JSON.stringify({
         name: 'root',
         parent: null,
         type: Type.DIR,
@@ -59,11 +79,14 @@
         // makes the calls necessary to process a command and display its output
         var processCommand = function(commandStr, alias) {
             if (commandStr) {
+                commandHistory.push(commandStr);
+                historyIndex = commandHistory.length;
                 var command = parseArgumentLine(commandStr),
                     curPrompt = $scope.cmdPrompt(),
                     result = doCommand(command[0], command.slice(1));
                 commandHistory.push(commandStr);
-                historyIndex = commandHistory.length;
+                historyIndex = system.commandHistory.length;
+                fileSystem.sync('commandHistory');
                 // if we just got redirected to an alias then exit
                 if(result === false) return;
                 // always push the prompt line (if an alias was specified display that instead)
@@ -191,9 +214,15 @@
             },
             history: function() {
                 var result = [];
-                _.each(commandHistory, function(command) {
-                    result.push(command);
-                });
+                if(arguments[0] == "-c"){
+                    commandHistory = [];
+                    result.push("history successfully cleared");
+                }
+                else{
+                    _.each(commandHistory, function(command) {
+                      result.push(command);
+                    });
+                }
                 return result;
             },
             alias: function() {
@@ -214,7 +243,7 @@
                         delete aliases[aliasName];
                         returnMsg = "deleted alias '" + aliasName + "'";
                     }
-                    fileSystem.sync();
+                    fileSystem.sync('aliases');
                     return returnMsg;
                 }
             },
@@ -239,15 +268,15 @@
         });
         Mousetrap.bindGlobal(['up'], function(e) {
             if(historyIndex > 0)
-                --historyIndex;
-            $scope.command = commandHistory[historyIndex];
+                $scope.command = commandHistory[--historyIndex];
             $scope.$apply();
             return false;
         });
         Mousetrap.bindGlobal(['down'], function(e) {
             if(historyIndex < commandHistory.length - 1)
-                ++historyIndex;
-            $scope.command = commandHistory[historyIndex];
+                $scope.command = commandHistory[++historyIndex];
+            else
+                $scope.command = "";
             $scope.$apply();
             return false;
         });
@@ -268,7 +297,7 @@
                     content: ''
                 });
             }, this);
-            this.sync();
+            this.sync('root');
             return "success: created file(s) '" + files.join(', ') + "'";
         },
         newFolder: function(folders) {
@@ -281,7 +310,7 @@
                     children: []
                 });
             }, this);
-            this.sync();
+            this.sync('root');
             return "success: created folder(s) '" + folders.join(', ') + "'";
         },
         goToFolder: function(path, getIt) {
@@ -349,11 +378,17 @@
                 return 'error: invalid path';
             }
         },
-        sync: function() {
-            localStorage.aliases = JSON.stringify(aliases);
-            localStorage.files = JSON.stringify(this.root);
+        sync: function(whatToSync) {
+            var keys = (whatToSync instanceof Array) ? whatToSync : [whatToSync];
+            if(!keys) {
+                keys = _.keys(system).concat(['root']);
+            }
+            _.each(keys, function(key) {
+                if(system[key] || fileSystem[key]) {
+                    localStorage[key] = JSON.stringify(system[key] || fileSystem[key]);
+                }
+            });
             console.log(localStorage.files);
-            console.log(localStorage.aliases);
         }
     };
 
