@@ -81,12 +81,10 @@
             if (commandStr) {
                 commandHistory.push(commandStr);
                 historyIndex = commandHistory.length;
+                fileSystem.sync('commandHistory');
                 var command = parseArgumentLine(commandStr),
                     curPrompt = $scope.cmdPrompt(),
                     result = doCommand(command[0], command.slice(1));
-                commandHistory.push(commandStr);
-                historyIndex = system.commandHistory.length;
-                fileSystem.sync('commandHistory');
                 // if we just got redirected to an alias then exit
                 if(result === false) return;
                 // always push the prompt line (if an alias was specified display that instead)
