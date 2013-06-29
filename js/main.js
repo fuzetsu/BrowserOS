@@ -59,11 +59,11 @@
         // makes the calls necessary to process a command and display its output
         var processCommand = function(commandStr, alias) {
             if (commandStr) {
+                commandHistory.push(commandStr);
+                historyIndex = commandHistory.length;
                 var command = parseArgumentLine(commandStr),
                     curPrompt = $scope.cmdPrompt(),
                     result = doCommand(command[0], command.slice(1));
-                commandHistory.push(commandStr);
-                historyIndex = commandHistory.length;
                 // if we just got redirected to an alias then exit
                 if(result === false) return;
                 // always push the prompt line (if an alias was specified display that instead)
@@ -191,9 +191,15 @@
             },
             history: function() {
                 var result = [];
-                _.each(commandHistory, function(command) {
-                    result.push(command);
-                });
+                if(arguments[0] == "-c"){
+                    commandHistory = [];
+                    result.push("history successfully cleared");
+                }
+                else{
+                    _.each(commandHistory, function(command) {
+                      result.push(command);
+                    });
+                }
                 return result;
             },
             alias: function() {
@@ -239,15 +245,15 @@
         });
         Mousetrap.bindGlobal(['up'], function(e) {
             if(historyIndex > 0)
-                --historyIndex;
-            $scope.command = commandHistory[historyIndex];
+                $scope.command = commandHistory[--historyIndex];
             $scope.$apply();
             return false;
         });
         Mousetrap.bindGlobal(['down'], function(e) {
             if(historyIndex < commandHistory.length - 1)
-                ++historyIndex;
-            $scope.command = commandHistory[historyIndex];
+                $scope.command = commandHistory[++historyIndex];
+            else
+                $scope.command = "";
             $scope.$apply();
             return false;
         });
