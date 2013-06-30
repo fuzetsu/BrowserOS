@@ -68,6 +68,8 @@
             $scope.fgc = settings.foregroundColor;
         };
 
+        $scope.setColor();
+
         // retrieves current working directory in string form
         $scope.workingDir = function() {
             return fileSystem.getFolderPath(fileSystem.currentFolder);
