@@ -8,13 +8,13 @@
 <body>
     <div class="console" ng-controller="ConsoleController" style="background: {{bgColor}}; color: {{fgColor}}; font-size: {{fnSize}}; font-family: {{fnFamily}}">
         <div>
-            <code ng-repeat="line in output">
+            <div ng-repeat="line in output">
                 <span class="ps1" style="color: {{prColor}};">{{line[0]}}</span>{{line[1]}}<br>
-            </code>
+            </div>
         </div>
 
         <form ng-submit="execCommand()">
-            <code class="cmdline"><span class="ps1" style="color: {{prColor}};">{{cmdPrompt()}}</span><input type="text" ng-model="command" id="cmd"></code>
+            <div class="cmdline"><span class="ps1" style="color: {{prColor}};">{{cmdPrompt()}}</span><input type="text" ng-model="command" id="cmd"></div>
         </form>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>

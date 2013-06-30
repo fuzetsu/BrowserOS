@@ -9,6 +9,7 @@ body{
     height: inherit;
     width: inherit;
     margin: 0;
+    font-family: monospace;
 }
 
 /*#cmd{
