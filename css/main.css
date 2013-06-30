@@ -54,4 +54,5 @@ pre {
 .console {
     height: inherit;
     width: inherit;
+    overflow: auto;
 }
