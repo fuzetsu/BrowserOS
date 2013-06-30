@@ -299,7 +299,7 @@
     // TODO - maybe this needs to be moved into it's own module / file
     // simple filesystem related functions
     var fileSystem = {
-        root: JSON.parse(localStorage.files),
+        root: JSON.parse(localStorage.root),
         init: function() {
             fileSystem.currentFolder = fileSystem.root;
         },
@@ -402,7 +402,7 @@
                     localStorage[key] = JSON.stringify(system[key] || fileSystem[key]);
                 }
             });
-            console.log(localStorage.files);
+            console.log(localStorage.root);
         }
     };
 
