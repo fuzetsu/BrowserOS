@@ -63,14 +63,16 @@
         $scope.output = [];
 
         // sets the colors of the terminal
-        $scope.setColor = function() {
-            $scope.bgc = settings.backgroundColor;
-            $scope.fgc = settings.foregroundColor;
-            $scope.psc = settings.promptColor;
+        $scope.loadSettings = function() {
             fileSystem.sync('settings');
+            $scope.bgColor = settings.backgroundColor;
+            $scope.fgColor = settings.foregroundColor;
+            $scope.prColor = settings.promptColor;
+            $scope.fnSize = settings.fontSize;
+            $scope.fnFamily = settings.fontFamily;
         };
 
-        $scope.setColor();
+        $scope.loadSettings();
 
         // retrieves current working directory in string form
         $scope.workingDir = function() {
@@ -278,7 +280,20 @@
                 index = _.indexOf(arguments, '-p');
                 if(index !== -1)
                     settings.promptColor = arguments[index + 1];
-                $scope.setColor();
+                $scope.loadSettings();
+            },
+            font: function() {
+                if (!arguments[0]) return "usage: font <-s|-f> <size|family>";
+                var index = _.indexOf(arguments, '-s');
+                if(index !== -1)
+                    settings.fontSize = arguments[index + 1];
+                index = _.indexOf(arguments, '-f');
+                if(index !== -1)
+                    settings.fontFamily = arguments[index + 1];
+                $scope.loadSettings();
+            },
+            r: function() {
+                localStorage.clear();
             }
         };
         Mousetrap.bindGlobal(['ctrl+l','command+l'], function(e) {

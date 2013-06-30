@@ -6,15 +6,15 @@
 <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-    <div class="console" ng-controller="ConsoleController" style="background: {{bgc}}; color: {{fgc}};">
+    <div class="console" ng-controller="ConsoleController" style="background: {{bgColor}}; color: {{fgColor}}; font-size: {{fnSize}}; font-family: {{fnFamily}}">
         <div>
             <code ng-repeat="line in output">
-                <span class="ps1" style="color: {{psc}};">{{line[0]}}</span>{{line[1]}}<br>
+                <span class="ps1" style="color: {{prColor}};">{{line[0]}}</span>{{line[1]}}<br>
             </code>
         </div>
 
         <form ng-submit="execCommand()">
-            <code class="cmdline"><span class="ps1" style="color: {{psc}};">{{cmdPrompt()}}</span><input type="text" ng-model="command" id="cmd"></code>
+            <code class="cmdline"><span class="ps1" style="color: {{prColor}};">{{cmdPrompt()}}</span><input type="text" ng-model="command" id="cmd"></code>
         </form>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
