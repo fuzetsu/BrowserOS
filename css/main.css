@@ -33,10 +33,23 @@ pre {
     font-weight:bold;
 }
 
-.cmdline:after {
+.cmdline input {
+    font-family: inherit;
+    font-size: inherit;
+    background: inherit;
+    color: inherit;
+    width: 50%;
+    border: none;
+}
+
+.cmdline input:focus {
+    outline: 0;
+}
+
+/*.cmdline:after {
     color: orange;
     content: '║';
-}
+}*/
 
 .console {
     height: inherit;

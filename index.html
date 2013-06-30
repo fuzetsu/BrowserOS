@@ -12,9 +12,9 @@
                 <span class="ps1" style="color: {{psc}};">{{line[0]}}</span>{{line[1]}}<br>
             </code>
         </div>
-        <code class="cmdline"><span class="ps1" style="color: {{psc}};">{{cmdPrompt()}}</span>{{command}}</code>
+
         <form ng-submit="execCommand()">
-            <input type="text" ng-model="command" class="hidden" id="cmd">
+            <code class="cmdline"><span class="ps1" style="color: {{psc}};">{{cmdPrompt()}}</span><input type="text" ng-model="command" id="cmd"></code>
         </form>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
