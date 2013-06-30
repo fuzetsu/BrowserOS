@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-    <div ng-controller="ConsoleController">
+    <div class="console" ng-controller="ConsoleController" style="background: {{bgc}}; color: {{fgc}};">
         <div>
             <code ng-repeat="line in output">
                 <span class="ps1">{{line[0]}}</span>{{line[1]}}<br>

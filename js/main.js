@@ -22,7 +22,7 @@
 
     // if settings isn't in local storage add it
     if(!localStorage.settings) {
-        localStorage.settings = JSON.stringify([]);
+        localStorage.settings = JSON.stringify({});
     }
 
     // namespace to hold system related variables
@@ -61,6 +61,12 @@
         $scope.command = '';
         // initialize array that holds the output on the screen
         $scope.output = [];
+
+        // sets the colors of the terminal
+        $scope.setColor = function() {
+            $scope.bgc = settings.backgroundColor;
+            $scope.fgc = settings.foregroundColor;
+        };
 
         // retrieves current working directory in string form
         $scope.workingDir = function() {
@@ -256,6 +262,16 @@
                 var result = ["You can use the following commands:"];
                 result.push(_.keys(commands).join(', '));
                 return result;
+            },
+            color: function() {
+                var index = _.indexOf(arguments, '-b');
+                if(index !== -1)
+                    settings.backgroundColor = arguments[index + 1];
+                index = _.indexOf(arguments, '-f');
+                if(index !== -1)
+                    settings.foregroundColor = arguments[index + 1];
+                fileSystem.sync('settings');
+                $scope.setColor();
             }
         };
         Mousetrap.bindGlobal(['ctrl+l','command+l'], function(e) {

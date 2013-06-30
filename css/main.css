@@ -1,6 +1,14 @@
+html{
+    height: 100%;
+    width: 100%;
+}
+
 body{
     background:black;
     color:white;
+    height: inherit;
+    width: inherit;
+    margin: 0;
 }
 
 /*#cmd{
@@ -28,4 +36,9 @@ pre {
 .cmdline:after {
     color: orange;
     content: '║';
+}
+
+.console {
+    height: inherit;
+    width: inherit;
 }
