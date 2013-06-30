@@ -66,6 +66,8 @@
         $scope.setColor = function() {
             $scope.bgc = settings.backgroundColor;
             $scope.fgc = settings.foregroundColor;
+            $scope.psc = settings.promptColor;
+            fileSystem.sync('settings');
         };
 
         $scope.setColor();
@@ -266,13 +268,16 @@
                 return result;
             },
             color: function() {
+                if (!arguments[0]) return "usage: color <-b|-f|-p> <color>";
                 var index = _.indexOf(arguments, '-b');
                 if(index !== -1)
                     settings.backgroundColor = arguments[index + 1];
                 index = _.indexOf(arguments, '-f');
                 if(index !== -1)
                     settings.foregroundColor = arguments[index + 1];
-                fileSystem.sync('settings');
+                index = _.indexOf(arguments, '-p');
+                if(index !== -1)
+                    settings.promptColor = arguments[index + 1];
                 $scope.setColor();
             }
         };

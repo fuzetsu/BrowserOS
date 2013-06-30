@@ -9,10 +9,10 @@
     <div class="console" ng-controller="ConsoleController" style="background: {{bgc}}; color: {{fgc}};">
         <div>
             <code ng-repeat="line in output">
-                <span class="ps1">{{line[0]}}</span>{{line[1]}}<br>
+                <span class="ps1" style="color: {{psc}};">{{line[0]}}</span>{{line[1]}}<br>
             </code>
         </div>
-        <code class="cmdline"><span class="ps1">{{cmdPrompt()}}</span>{{command}}</code>
+        <code class="cmdline"><span class="ps1" style="color: {{psc}};">{{cmdPrompt()}}</span>{{command}}</code>
         <form ng-submit="execCommand()">
             <input type="text" ng-model="command" class="hidden" id="cmd">
         </form>
