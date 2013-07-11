@@ -7,6 +7,9 @@
         TEXT: 't'
     };
 
+    // namespace to hold system related variables
+    var system = {};
+
     // register syncable objects
     var registerSyncObjects = function(defs) {
         defs = (defs instanceof Array) ? defs : [defs];
@@ -14,6 +17,7 @@
             if(!localStorage[def.name || def]) {
                 localStorage[def.name || def] = JSON.stringify(def.base || {});
             }
+            system[def.name || def] = JSON.parse(localStorage[def.name || def]);
         });
     };
 
@@ -27,21 +31,8 @@
         'settings'
     ]);
 
-    // namespace to hold system related variables
-    var system = {};
-
-    // array to hold a history of the commands entered
-    system.commandHistory = JSON.parse(localStorage.commandHistory);
-    var commandHistory = system.commandHistory;
-    var historyIndex = commandHistory.length;
-
-    // object to hold aliases
-    system.aliases = JSON.parse(localStorage.aliases);
-    var aliases = system.aliases;
-
-    // object to hold settings
-    system.settings = JSON.parse(localStorage.settings);
-    var settings = system.settings;
+    // hold current position in command history
+    var historyIndex = system.commandHistory.length;
 
     // if(!localStorage.files) {
     // initial setup of file-system in local-storage
@@ -67,11 +58,11 @@
         // sets the colors of the terminal
         $scope.loadSettings = function() {
             fileSystem.sync('settings');
-            $scope.bgColor = settings.backgroundColor;
-            $scope.fgColor = settings.foregroundColor;
-            $scope.prColor = settings.promptColor;
-            $scope.fnSize = settings.fontSize;
-            $scope.fnFamily = settings.fontFamily;
+            $scope.bgColor = system.settings.backgroundColor;
+            $scope.fgColor = system.settings.foregroundColor;
+            $scope.prColor = system.settings.promptColor;
+            $scope.fnSize = system.settings.fontSize;
+            $scope.fnFamily = system.settings.fontFamily;
         };
 
         $scope.loadSettings();
@@ -93,8 +84,8 @@
         // makes the calls necessary to process a command and display its output
         var processCommand = function(commandStr, alias) {
             if (commandStr) {
-                commandHistory.push(commandStr);
-                historyIndex = commandHistory.length;
+                system.commandHistory.push(commandStr);
+                historyIndex = system.commandHistory.length;
                 fileSystem.sync('commandHistory');
                 var command = parseArgumentLine(commandStr),
                     curPrompt = $scope.cmdPrompt(),
@@ -166,8 +157,8 @@
 
         // executes a command and hands off the passed parameters to it
         var doCommand = function(command, parameters) {
-            if(aliases[command]) {
-                processCommand(aliases[command], command);
+            if(system.aliases[command]) {
+                processCommand(system.aliases[command], command);
                 return false;
             } else if (commands[command]) {
                 return commands[command].apply(commands, parameters);
@@ -227,11 +218,11 @@
             history: function() {
                 var result = [];
                 if(arguments[0] == "-c"){
-                    commandHistory.length = 0;
+                    system.commandHistory.length = 0;
                     result.push("history successfully cleared");
                 }
                 else{
-                    _.each(commandHistory, function(command) {
+                    _.each(system.commandHistory, function(command) {
                       result.push(command);
                     });
                 }
@@ -248,11 +239,11 @@
                         returnMsg;
                     if((action === "del" && arguments.length !== 2) || (action === "set" && arguments.length !== 3)) return usage;
                     if(action === "set") {
-                        aliases[aliasName] = command;
+                        system.aliases[aliasName] = command;
                         returnMsg = "created alias '" + aliasName + "=" + command + "'";
                     } else {
-                        if(!aliases[aliasName]) return "alias '" + aliasName + "' does not exist.";
-                        delete aliases[aliasName];
+                        if(!system.aliases[aliasName]) return "alias '" + aliasName + "' does not exist.";
+                        delete system.aliases[aliasName];
                         returnMsg = "deleted alias '" + aliasName + "'";
                     }
                     fileSystem.sync('aliases');
@@ -261,7 +252,7 @@
             },
             aliases: function() {
                 var result = [];
-                _.forOwn(aliases, function(command, alias) {
+                _.forOwn(system.aliases, function(command, alias) {
                     result.push(alias + '="' + command + '"');
                 });
                 return result;
@@ -275,23 +266,23 @@
                 if (!arguments[0]) return "usage: color <-b|-f|-p> <color>";
                 var index = _.indexOf(arguments, '-b');
                 if(index !== -1)
-                    settings.backgroundColor = arguments[index + 1];
+                    system.settings.backgroundColor = arguments[index + 1];
                 index = _.indexOf(arguments, '-f');
                 if(index !== -1)
-                    settings.foregroundColor = arguments[index + 1];
+                    system.settings.foregroundColor = arguments[index + 1];
                 index = _.indexOf(arguments, '-p');
                 if(index !== -1)
-                    settings.promptColor = arguments[index + 1];
+                    system.settings.promptColor = arguments[index + 1];
                 $scope.loadSettings();
             },
             font: function() {
                 if (!arguments[0]) return "usage: font <-s|-f> <size|family>";
                 var index = _.indexOf(arguments, '-s');
                 if(index !== -1)
-                    settings.fontSize = arguments[index + 1];
+                    system.settings.fontSize = arguments[index + 1];
                 index = _.indexOf(arguments, '-f');
                 if(index !== -1)
-                    settings.fontFamily = arguments[index + 1];
+                    system.settings.fontFamily = arguments[index + 1];
                 $scope.loadSettings();
             },
             r: function() { // TESTING
@@ -312,13 +303,13 @@
         });
         Mousetrap.bindGlobal(['up'], function(e) {
             if(historyIndex > 0)
-                $scope.command = commandHistory[--historyIndex];
+                $scope.command = system.commandHistory[--historyIndex];
             $scope.$apply();
             return false;
         });
         Mousetrap.bindGlobal(['down'], function(e) {
-            if(historyIndex < commandHistory.length - 1)
-                $scope.command = commandHistory[++historyIndex];
+            if(historyIndex < system.commandHistory.length - 1)
+                $scope.command = system.commandHistory[++historyIndex];
             else
                 $scope.command = "";
             $scope.$apply();
