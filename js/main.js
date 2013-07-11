@@ -7,23 +7,25 @@
         TEXT: 't'
     };
 
+    // register syncable objects
+    var registerSyncObjects = function(defs) {
+        defs = (defs instanceof Array) ? defs : [defs];
+        _.each(defs, function(def) {
+            if(!localStorage[def.name || def]) {
+                localStorage[def.name || def] = JSON.stringify(def.base || {});
+            }
+        });
+    };
+
     // hidden text input element where commands are entered
     var cmd = document.getElementById('cmd');
 
-    // if aliases arent int local storage add them
-    if(!localStorage.aliases) {
-        localStorage.aliases = JSON.stringify({});
-    }
-
-    // if history isn't in local storage add it
-    if(!localStorage.commandHistory) {
-        localStorage.commandHistory = JSON.stringify([]);
-    }
-
-    // if settings isn't in local storage add it
-    if(!localStorage.settings) {
-        localStorage.settings = JSON.stringify({});
-    }
+    // register objects to be synced
+    registerSyncObjects([
+        'aliases',
+        {name: 'commandHistory', base: []},
+        'settings'
+    ]);
 
     // namespace to hold system related variables
     var system = {};
@@ -292,8 +294,14 @@
                     settings.fontFamily = arguments[index + 1];
                 $scope.loadSettings();
             },
-            r: function() {
+            r: function() { // TESTING
                 localStorage.clear();
+            },
+            avg: function() {
+                if(!arguments[0]) return "usage: avg [numbers to average]";
+                return _.reduce(arguments, function(lastNumber, number) {
+                    return lastNumber + (parseInt(number, 10) || 0);
+                }, 0) / arguments.length;
             }
         };
         Mousetrap.bindGlobal(['ctrl+l','command+l'], function(e) {
