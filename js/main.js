@@ -11,6 +11,11 @@
         ALL: '*'
     };
 
+    system.typeTrans = {
+        d: 'directory',
+        t: 'text file'
+    };
+
     // register syncable objects
     system.registerSyncObjects = function(defs) {
         defs = (defs instanceof Array) ? defs : [defs];
