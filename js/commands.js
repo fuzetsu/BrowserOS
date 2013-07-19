@@ -109,7 +109,7 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
         },
         help: function() {
             var result = ["You can use the following commands:"];
-            result.push(_.keys(commands).join(', '));
+            result.push(_.keys(this).join(', '));
             return result;
         },
         color: function() {
