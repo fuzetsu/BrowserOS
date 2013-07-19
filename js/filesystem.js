@@ -7,14 +7,16 @@ system.createFileSystem = function(root) {
 			this.currentFolder = this.root;
 		},
 		createFile: function(files, type) {
+			var parentPath = this.getFolderPath(this.currentFolder);
 			_.each(files, function(file) {
 				this.currentFolder.children.push({
 					name: file,
+					parent: parentPath,
 					type: type,
 					content: ''
 				});
 			}, this);
-			this.sync('root');
+			system.sync('root');
 			return "success: created file(s) '" + files.join(', ') + "'";
 		},
 		newFolder: function(folders) {
@@ -27,7 +29,7 @@ system.createFileSystem = function(root) {
 					children: []
 				});
 			}, this);
-			this.sync('root');
+			system.sync('root');
 			return "success: created folder(s) '" + folders.join(', ') + "'";
 		},
 		goToFolder: function(path, getIt) {
@@ -60,16 +62,37 @@ system.createFileSystem = function(root) {
 				this.currentFolder = lastFolder;
 			}
 		},
+		removeFile: function(file) {
+			var parentDir = this.getFolder(file.parent),
+				initial = parentDir.children.length;
+			parentDir.children = _.filter(parentDir.children, function(child) {
+				return child !== file;
+			});
+			system.sync('root');
+			return initial > parentDir.children.length;
+		},
+		getPrefix: function(filePath) {
+			return filePath.slice(0, filePath.lastIndexOf('/'));
+		},
+		getBasename: function(filePath) {
+			return filePath.slice(filePath.lastIndexOf('/') + 1);
+		},
+		doForEachFile: function(files, type, action) {
+			_.each(files, function(file, index) {
+				action(this.getFromDir(this.getBasename(file), type, this.getPrefix(file)), index);
+			}, this);
+		},
 		getFromDir: function(name, type, dir) {
-			dir = dir || this.currentFolder;
+			dir = this.getFolder(dir) || this.currentFolder;
 			var children = dir.children;
 			if (!children) return null;
 			return _.find(children, function(child) {
-				if (child.name === name && child.type == type)
+				if (child.name === name && (child.type == type || type === system.types.ALL))
 					return true;
 			});
 		},
 		getFolder: function(path) {
+			if(path.type === system.types.DIR) return path;
 			return (path) ? this.goToFolder(path, true) : null;
 		},
 		getCurrentPath: function() {
@@ -94,18 +117,6 @@ system.createFileSystem = function(root) {
 			} else {
 				return 'error: invalid path';
 			}
-		},
-		sync: function(whatToSync) {
-			var keys = (whatToSync instanceof Array) ? whatToSync : [whatToSync];
-			if (!keys) {
-				keys = _.keys(system).concat(['root']);
-			}
-			_.each(keys, function(key) {
-				if (system[key] || this[key]) {
-					localStorage[key] = JSON.stringify(system[key] || this[key]);
-				}
-			});
-			console.log(localStorage.root);
 		}
 	};
 };

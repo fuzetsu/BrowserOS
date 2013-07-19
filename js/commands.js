@@ -28,21 +28,38 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
             return fileSystem.listDirectory(arguments[0]);
         },
         exit: function() {
-            fileSystem.sync();
+            system.sync();
             window.close();
         },
         rm: function() {
             if (!arguments[0]) return "usage: rm <file name>";
-            return 'not implemented'; //fileSystem.removeDirectory(arguments); TODO
+            var output = [],
+                originalArguments = arguments;
+            fileSystem.doForEachFile(arguments, system.types.ALL, function(file, index) {
+                var filePath = originalArguments[index];
+                if(file) {
+                    if(fileSystem.removeFile(file)) {
+                        output.push("success: removed '" + filePath + "'");
+                    } else {
+                        output.push("error: unable to remove '" + filePath + "'");
+                    }
+                } else {
+                    output.push("error: '" + filePath + "' does not exist");
+                }
+            });
+            return output;
         },
         cat: function() { // TODO parse first parameter for path and read
             if (!arguments[0]) return "usage: cat <file name>";
-            var file = fileSystem.getFromDir(arguments[0], system.types.TEXT);
-            if (file) {
-                return file.content;
-            } else {
-                return "error: file '" + arguments[0] + "' does not exist";
-            }
+            var output = [];
+            fileSystem.doForEachFile(arguments, system.types.TEXT, function(file) {
+                if(file) {
+                    output.push(file.content);
+                } else {
+                    output.push("error: file '" + filePath + "' does not exist");
+                }
+            });
+            return output;
         },
         touch: function() { // TODO also detect path
             if (!arguments[0]) return "usage: touch <file name>";
@@ -79,7 +96,7 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
                     delete system.aliases[aliasName];
                     returnMsg = "deleted alias '" + aliasName + "'";
                 }
-                fileSystem.sync('aliases');
+                system.sync('aliases');
                 return returnMsg;
             }
         },

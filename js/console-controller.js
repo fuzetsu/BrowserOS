@@ -10,7 +10,7 @@ system.createConsoleController = function(fileSystem) { // TODO - look into remo
 
         // sets the colors of the terminal
         $scope.loadSettings = function() {
-            fileSystem.sync('settings');
+            system.sync('settings');
             $scope.bgColor = system.settings.backgroundColor;
             $scope.fgColor = system.settings.foregroundColor;
             $scope.prColor = system.settings.promptColor;
@@ -39,7 +39,7 @@ system.createConsoleController = function(fileSystem) { // TODO - look into remo
             if (commandStr) {
                 system.commandHistory.push(commandStr);
                 system.historyIndex = system.commandHistory.length;
-                fileSystem.sync('commandHistory');
+                system.sync('commandHistory');
                 var command = parseArgumentLine(commandStr),
                     curPrompt = $scope.cmdPrompt(),
                     result = doCommand(command[0], command.slice(1));
