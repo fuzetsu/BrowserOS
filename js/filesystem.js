@@ -7,30 +7,41 @@ system.createFileSystem = function(root) {
 			this.currentFolder = this.root;
 		},
 		createFile: function(files, type) {
-			var parentPath = this.getFolderPath(this.currentFolder);
+			var output = [];
 			_.each(files, function(file) {
-				this.currentFolder.children.push({
-					name: file,
+				var prefix = this.getPrefix(file),
+					parentFolder = this.getFolder(prefix),
+					fileName = this.getBasename(file);
+				if(!parentFolder) {
+					if(prefix) {
+						output.push("error: No such directory '" + parentPath + "'");
+						return;
+					} else {
+						parentFolder = this.currentFolder;
+					}
+				}
+				var parentPath = this.getFolderPath(parentFolder);
+				var newFile = {
+					name: fileName,
 					parent: parentPath,
-					type: type,
-					content: ''
-				});
+					type: type
+				};
+				switch(type) {
+					case system.types.DIR:
+						newFile.children = [];
+						break;
+					case system.types.TEXT:
+						newFile.content = '';
+						break;
+				}
+				parentFolder.children.push(newFile);
+				output.push("success: created " + system.typeTrans[type] + " '" + fileName + "' in directory '" + parentPath + "'");
 			}, this);
 			system.sync('root');
-			return "success: created file(s) '" + files.join(', ') + "'";
+			return output;
 		},
 		newFolder: function(folders) {
-			var parentPath = this.getFolderPath(this.currentFolder);
-			_.each(folders, function(folder) {
-				this.currentFolder.children.push({
-					name: folder,
-					parent: parentPath,
-					type: 'd',
-					children: []
-				});
-			}, this);
-			system.sync('root');
-			return "success: created folder(s) '" + folders.join(', ') + "'";
+			return this.createFile(folders, system.types.DIR);
 		},
 		goToFolder: function(path, getIt) {
 			var folders = path.split('/'),
@@ -72,7 +83,10 @@ system.createFileSystem = function(root) {
 			return initial > parentDir.children.length;
 		},
 		getPrefix: function(filePath) {
-			return filePath.slice(0, filePath.lastIndexOf('/'));
+			var lastSlash = filePath.lastIndexOf('/');
+			if(lastSlash !== -1 && lastSlash !== 0) {
+				return filePath.slice(0, lastSlash);
+			}
 		},
 		getBasename: function(filePath) {
 			return filePath.slice(filePath.lastIndexOf('/') + 1);
@@ -92,8 +106,13 @@ system.createFileSystem = function(root) {
 			});
 		},
 		getFolder: function(path) {
-			if(path.type === system.types.DIR) return path;
-			return (path) ? this.goToFolder(path, true) : null;
+			if(!path) {
+				return null;
+			} else if(path.type === system.types.DIR) {
+				return path;
+			} else {
+				return this.goToFolder(path, true);
+			}
 		},
 		getCurrentPath: function() {
 			return this.getFolderPath(this.currentFolder);
