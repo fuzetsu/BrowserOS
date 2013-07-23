@@ -141,7 +141,6 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
         avg: function() {
             if(!arguments[0]) return "usage: avg [numbers to average]";
             return _.reduce(arguments, function(lastNumber, number) {
-                console.log(lastNumber);
                 return lastNumber + parseFloat(number, 10);
             }, 0) / arguments.length || "error: input must be valid numbers.";
         }
