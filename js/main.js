@@ -28,12 +28,21 @@
     };
 
     // define syncing function
-    system.sync = function(whatToSync) {
-        var keys;
+    system.sync = function(whatToSync, cloud) {
+        var keys, data;
         if (!whatToSync) {
-            keys = _.keys(system).concat(['root']);
+            keys = _.keys(system);
         } else {
             keys = (whatToSync instanceof Array) ? whatToSync : [whatToSync];
+        }
+        if(cloud) {
+            openStorage.set(system, function(success) {
+                if(success) {
+                    console.log('synced system to cloud');
+                } else {
+                    console.log('failed to sync system to cloud');
+                }
+            });
         }
         _.each(keys, function(key) {
             if (system[key]) {
@@ -66,8 +75,17 @@
                 type: system.types.DIR,
                 children: []
             }
+        },
+        {
+            name: 'secret',
+            base: {
+                key: null
+            }
         }
     ]);
+
+    // set the user key for open storage
+    system.openStorage.user_key = system.secret.key;
 
     // hold current position in command history
     system.historyIndex = system.commandHistory.length;

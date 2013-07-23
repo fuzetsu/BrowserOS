@@ -1,4 +1,4 @@
-window.system = window.system || {};
+var system = system || {};
 
 system.createFileSystem = function(root) {
 	return {

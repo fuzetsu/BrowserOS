@@ -1,4 +1,4 @@
-window.system = window.system || {};
+var system = system || {};
 
 system.createCommands = function($scope, fileSystem) { // TODO - look into removing dependency on system namespace in modules
     return {
@@ -15,6 +15,12 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
         },
         pwd: function() {
             return fileSystem.getCurrentPath();
+        },
+        login: function() {
+            if(!arguments[0]) return "usage: login <secret_key>";
+            system.secret.key = arguments[0];
+            system.openStorage.user_key = arguments[0];
+            //system.sync('', true); STILL TESTING
         },
         cd: function() {
             if (!arguments[0]) return "usage: cd <path>";
