@@ -89,9 +89,9 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
             if(!arguments[0] || _.indexOf(['set','del'], arguments[0]) === -1) {
                 return usage;
             } else {
-                var action = arguments[0],
+                var action    = arguments[0],
                     aliasName = arguments[1],
-                    command = arguments[2],
+                    command   = arguments[2],
                     returnMsg;
                 if((action === "del" && arguments.length !== 2) || (action === "set" && arguments.length !== 3)) return usage;
                 if(action === "set") {

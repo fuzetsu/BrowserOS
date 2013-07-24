@@ -6,9 +6,9 @@
 
     // global type definitions
     system.types = {
-        DIR: 'd',
+        DIR:  'd',
         TEXT: 't',
-        ALL: '*'
+        ALL:  '*'
     };
 
     system.typeTrans = {
@@ -70,9 +70,9 @@
         {
             name: 'root',
             base: {
-                name: 'root',
-                parent: null,
-                type: system.types.DIR,
+                name:     'root',
+                parent:   null,
+                type:     system.types.DIR,
                 children: []
             }
         },

@@ -21,7 +21,7 @@ system.openStorage = {
         });
     },
     get: function(key, callback) {
-        var keys = this.removeDuplicates((key instanceof Array) ? key : [key]),
+        var keys      = this.removeDuplicates((key instanceof Array) ? key : [key]),
             returnObj = {},
             leftToGet = keys.length;
         for(var i = 0; i < keys.length; i++) {
@@ -49,10 +49,11 @@ system.openStorage = {
         }
     },
     ajax: function(options) {
-        var script = document.createElement('script'),
+        var self         = this,
+            script       = document.createElement('script'),
             callbackName = this.user_key + Date.now() + Math.floor(Math.random() * 4000);
         window[callbackName] = function(data) {
-            options.success(openStorage.cleanData(data));
+            options.success(self.cleanData(data));
         };
         script.async = options.async || true;
         script.onerror = options.error;

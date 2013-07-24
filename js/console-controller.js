@@ -11,10 +11,10 @@ system.createConsoleController = function(fileSystem) { // TODO - look into remo
         // sets the colors of the terminal
         $scope.loadSettings = function() {
             system.sync('settings');
-            $scope.bgColor = system.settings.backgroundColor;
-            $scope.fgColor = system.settings.foregroundColor;
-            $scope.prColor = system.settings.promptColor;
-            $scope.fnSize = system.settings.fontSize;
+            $scope.bgColor  = system.settings.backgroundColor;
+            $scope.fgColor  = system.settings.foregroundColor;
+            $scope.prColor  = system.settings.promptColor;
+            $scope.fnSize   = system.settings.fontSize;
             $scope.fnFamily = system.settings.fontFamily;
         };
 
@@ -66,46 +66,41 @@ system.createConsoleController = function(fileSystem) { // TODO - look into remo
 
         // ridiculous function to go through the command and create the array of command / parameters
         var parseArgumentLine = function(argumentLine) {
-            var result = [],
-                current,
-                characters = argumentLine.split('').reverse(),
-                reset = true,
-                c = characters.pop();
-            while (c) {
-                while (c === ' ') {
-                    c = characters.pop();
-                }
-                if (c === '"') {
-                    if (reset) current = '';
-                    c = characters.pop();
-                    while (c && c !== '"') {
-                        current += c;
-                        c = characters.pop();
-                    }
-                    if (c === '"') {
-                        c = characters.pop();
-                    }
-                    if (c && c !== ' ' && c !== '"') {
-                        reset = false;
+            var text       = argumentLine,
+                params     = [],
+                curParam   = '',
+                squoteOpen = false,
+                dquoteOpen = false,
+                escaped    = false,
+                character  = null;
+
+            for (var i = 0, len = text.length; i < len; ++i) {
+                character = text[i];
+                if (escaped || (squoteOpen && character !== "'") || (dquoteOpen && character !== '"')) {
+                    if (character === '\\') {
+                        escaped = true;
                     } else {
-                        result.push(current);
-                        reset = true;
+                        escaped = false;
+                        curParam += character;
                     }
+                } else if (character === ' ') {
+                    if (text[i - 1] !== ' ') {
+                        params.push(curParam);
+                        curParam = '';
+                    }
+                } else if (character === "'") {
+                    squoteOpen = !squoteOpen;
+                } else if (character === '"') {
+                    dquoteOpen = !dquoteOpen;
+                } else if (character === '\\') {
+                    escaped = true;
                 } else {
-                    if (reset) current = '';
-                    do {
-                        current += c;
-                        c = characters.pop();
-                    } while (c && c !== ' ' && c !== '"');
-                    if (c !== '"') {
-                        result.push(current);
-                        reset = true;
-                    } else {
-                        reset = false;
-                    }
+                    curParam += character;
                 }
             }
-            return result;
+
+            params.push(curParam);
+            return params;
         };
 
         // executes a command and hands off the passed parameters to it
