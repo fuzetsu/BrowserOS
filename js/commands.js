@@ -62,12 +62,14 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
         },
         cat: function() { // TODO parse first parameter for path and read
             if (!arguments[0]) return "usage: cat <file name>";
-            var output = [];
-            fileSystem.doForEachFile(arguments, system.types.TEXT, function(file) {
+            var output = [],
+                originalArguments = arguments;
+            fileSystem.doForEachFile(arguments, system.types.TEXT, function(file, index) {
+                var filePath = originalArguments[index];
                 if(file) {
                     output.push(file.content);
                 } else {
-                    output.push("error: file '" + filePath + "' does not exist");
+                    output.push("error: " + sysmte.typeTrans[file.type] + " '" + filePath + "' does not exist");
                 }
             });
             return output;
