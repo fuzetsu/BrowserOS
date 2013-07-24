@@ -50,9 +50,9 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
                 var filePath = originalArguments[index];
                 if(file) {
                     if(fileSystem.removeFile(file)) {
-                        output.push("success: removed '" + filePath + "'");
+                        output.push("success: removed " + system.typeTrans[file.type] + " '" + filePath + "'");
                     } else {
-                        output.push("error: unable to remove '" + filePath + "'");
+                        output.push("error: unable to remove " + system.typeTrans[file.type] + " '" + filePath + "'");
                     }
                 } else {
                     output.push("error: '" + filePath + "' does not exist");
