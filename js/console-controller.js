@@ -168,6 +168,7 @@ system.createConsoleController = function(fileSystem) { // TODO - look into remo
 
         Mousetrap.bindGlobal(['ctrl+l', 'command+l'], function(e) {
             $scope.command = '';
+            $scope.completions = '';
             commands.clear();
             $scope.$apply();
             return false;
