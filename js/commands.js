@@ -69,7 +69,7 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
                 if(file) {
                     output.push(file.content);
                 } else {
-                    output.push("error: " + system.typeTrans[file.type] + " '" + filePath + "' does not exist");
+                    output.push("error: " + system.typeTrans[system.types.TEXT] + " '" + filePath + "' does not exist");
                 }
             });
             return output;
