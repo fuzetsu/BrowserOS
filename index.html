@@ -16,6 +16,8 @@
         <form ng-submit="execCommand()">
             <div class="cmdline"><span class="ps1" style="color: {{prColor}};">{{cmdPrompt()}}</span><input type="text" ng-model="command" id="cmd"></div>
         </form>
+
+        <div class="completions">{{completions}}</div>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
     <script src="js/lodash.compat.js"></script>

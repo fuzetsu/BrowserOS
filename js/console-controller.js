@@ -40,6 +40,7 @@ system.createConsoleController = function(fileSystem) { // TODO - look into remo
         // makes the calls necessary to process a command and display its output
         var processCommand = function(commandStr, alias) {
             if (commandStr) {
+                $scope.completions = '';
                 system.commandHistory.push(commandStr);
                 system.historyIndex = system.commandHistory.length;
                 system.sync('commandHistory');
@@ -118,6 +119,53 @@ system.createConsoleController = function(fileSystem) { // TODO - look into remo
             }
         };
 
+        // takes current command text and processes it to find a possible completion
+        var getCompletions = function(argumentLine, getLine) {
+            var parsed = parseArgumentLine(argumentLine),
+                completions = [],
+                finished = false;
+            if(parsed.length < 2) {
+                _.each(commands, function(value, key) {
+                    if(key.indexOf(parsed[0]) === 0) {
+                        completions.push(key);
+                    }
+                });
+            }
+            if(completions.length === 1 && completions[0] === parsed[0]) {
+                completions = [];
+                parsed.push('');
+            }
+            if(parsed.length > 1) {
+                while(!finished) {
+                    _.each(system.fileSystem.currentFolder.children, function(child) {
+                        if(child.name.indexOf(parsed[parsed.length - 1]) === 0) {
+                            completions.push(child.name);
+                        }
+                    });
+                    if(completions.length === 1 && completions[0] === parsed[parsed.length - 1]) {
+                        completions = [];
+                        parsed.push('');
+                    } else {
+                        finished = true;
+                    }
+                }
+            }
+            if(completions.length > 0) {
+                if(completions.length > 1) {
+                    return completions;
+                } else {
+                    if(getLine) {
+                        parsed[parsed.length - 1] = completions[0];
+                        return parsed.join(' ');
+                    } else {
+                        return completions;
+                    }
+                }
+            } else {
+                return null;
+            }
+        };
+
         Mousetrap.bindGlobal(['ctrl+l', 'command+l'], function(e) {
             $scope.command = '';
             commands.clear();
@@ -136,6 +184,19 @@ system.createConsoleController = function(fileSystem) { // TODO - look into remo
                 $scope.command = system.commandHistory[++system.historyIndex];
             } else {
                 $scope.command = "";
+            }
+            $scope.$apply();
+            return false;
+        });
+        Mousetrap.bindGlobal(['tab'], function(e) {
+            $scope.completions = '';
+            var completions = getCompletions($scope.command, true);
+            if(completions) {
+                if(typeof completions === 'string') {
+                    $scope.command = completions;
+                } else {
+                    $scope.completions = completions.join(', ');
+                }
             }
             $scope.$apply();
             return false;
