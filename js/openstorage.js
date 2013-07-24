@@ -71,12 +71,12 @@ system.openStorage = {
         return (typeof data === 'string') ? JSON.parse(decodeURIComponent(data)) : data;
     },
     isEmptyObject: function( obj ) {
-		var name;
-		for ( name in obj ) {
-			return false;
-		}
-		return true;
-	},
+        var name;
+        for ( name in obj ) {
+            return false;
+        }
+        return true;
+    },
     removeDuplicates: function(arr) {
         var found = false, returnArr = [];
         for(var i = 0; i < arr.length; i++) {
