@@ -20,6 +20,10 @@ system.createFileSystem = function(root) {
                         parentFolder = this.currentFolder;
                     }
                 }
+                if(_.any(parentFolder.children, function(child) { return fileName === child.name; })) {
+                    output.push("error: file with name '" + fileName + "' already exists");
+                    return;
+                }
                 var parentPath = this.getFolderPath(parentFolder);
                 var newFile = {
                     name: fileName,
