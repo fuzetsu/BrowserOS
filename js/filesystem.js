@@ -9,9 +9,9 @@ system.createFileSystem = function(root) {
 		createFile: function(files, type) {
 			var output = [];
 			_.each(files, function(file) {
-				var prefix = this.getPrefix(file),
+				var prefix       = this.getPrefix(file),
 					parentFolder = this.getFolder(prefix),
-					fileName = this.getBasename(file);
+					fileName     = this.getBasename(file);
 				if(!parentFolder) {
 					if(prefix) {
 						output.push("error: No such directory '" + parentPath + "'");
@@ -44,38 +44,53 @@ system.createFileSystem = function(root) {
 			return this.createFile(folders, system.types.DIR);
 		},
 		goToFolder: function(path, getIt) {
-			var folders = path.split('/'),
-				curFolder = this.currentFolder,
-				lastFolder = this.currentFolder,
-				index = 0,
+			var folders        = path.split('/'),
+				curFolder      = this.currentFolder,
+				lastFolder     = this.currentFolder,
+				index          = 0,
 				nextFolderName = folders[index++];
-			if (nextFolderName === 'root') {
+			console.log(nextFolderName);
+			if (nextFolderName === 'root' || nextFolderName === '') {
 				curFolder = this.root;
 				lastFolder = curFolder;
+				if(folders.length === 2 && folders[index] === '') {
+					if(getIt) {
+						return lastFolder;
+					} else {
+						this.currentFolder = lastFolder;
+						return;
+					}
+				}
 			} else {
-				if (nextFolderName === '..')
+				if (nextFolderName === '..') {
 					curFolder = this.getFolder(curFolder.parent);
-				else
+				} else {
 					curFolder = this.getFromDir(nextFolderName, system.types.DIR, curFolder);
+				}
 			}
 			while (curFolder) {
 				lastFolder = curFolder;
 				nextFolderName = folders[index++];
-				if (nextFolderName === '..')
+				if (nextFolderName === '..') {
 					curFolder = this.getFolder(curFolder.parent);
-				else
+				} else {
 					curFolder = this.getFromDir(nextFolderName, system.types.DIR, curFolder);
+				}
 			}
-			if (getIt) return lastFolder;
 			if (index - 1 < folders.length) {
-				return "error: invalid path";
+				return (getIt) ? null : "error: invalid path";
 			} else {
-				this.currentFolder = lastFolder;
+				if (getIt) {
+					return lastFolder;
+				} else {
+					this.currentFolder = lastFolder;
+				}
 			}
 		},
 		removeFile: function(file) {
 			var parentDir = this.getFolder(file.parent),
-				initial = parentDir.children.length;
+				initial   = parentDir.children.length;
+
 			parentDir.children = _.filter(parentDir.children, function(child) {
 				return child !== file;
 			});
@@ -121,17 +136,17 @@ system.createFileSystem = function(root) {
 			if (!dir.parent) return dir.name;
 			return [dir.name, '/', dir.parent].reverse().join('');
 		},
-		listDirectory: function(dir) {
-			if (dir)
-				dir = this.getFolder(dir);
-			else
-				dir = this.currentFolder;
+		listDirectory: function(dir, showHidden) {
+			dir = (dir) ? this.getFolder(dir) : this.currentFolder;
 			if (dir && dir.children) {
-				return _.filter(
-					_.map(dir.children, function(child) {
-					return child.type + ':' + child.name;
-				}), function(el) {
-					return el.charAt(2) != ".";
+				var files = dir.children;
+				if(!showHidden) {
+					files = _.filter(files, function(file) {
+						return file.name.charAt(0) != '.';
+					});
+				}
+				return _.map(files, function(file) {
+					return file.type + ':' + file.name;
 				}).sort().join(', ') || "empty directory";
 			} else {
 				return 'error: invalid path';

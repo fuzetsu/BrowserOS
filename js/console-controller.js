@@ -8,6 +8,9 @@ system.createConsoleController = function(fileSystem) { // TODO - look into remo
         // initialize array that holds the output on the screen
         $scope.output = [];
 
+        // object containing all base commands and their implementations loaded from commands.js
+        var commands = system.createCommands($scope, fileSystem);
+
         // sets the colors of the terminal
         $scope.loadSettings = function() {
             system.sync('settings');
@@ -64,7 +67,7 @@ system.createConsoleController = function(fileSystem) { // TODO - look into remo
             }
         };
 
-        // ridiculous function to go through the command and create the array of command / parameters
+        // takes the argumentLine and returns an array of commands by taking into account: spaces, quotes, escaped characters, etc
         var parseArgumentLine = function(argumentLine) {
             var text       = argumentLine,
                 params     = [],
@@ -115,9 +118,6 @@ system.createConsoleController = function(fileSystem) { // TODO - look into remo
             }
         };
 
-        // object containing all base commands and their implementations loaded from commands.js
-        var commands = system.createCommands($scope, fileSystem);
-
         Mousetrap.bindGlobal(['ctrl+l', 'command+l'], function(e) {
             $scope.command = '';
             commands.clear();
@@ -125,16 +125,18 @@ system.createConsoleController = function(fileSystem) { // TODO - look into remo
             return false;
         });
         Mousetrap.bindGlobal(['up'], function(e) {
-            if (system.historyIndex > 0)
+            if (system.historyIndex > 0) {
                 $scope.command = system.commandHistory[--system.historyIndex];
+            }
             $scope.$apply();
             return false;
         });
         Mousetrap.bindGlobal(['down'], function(e) {
-            if (system.historyIndex < system.commandHistory.length - 1)
+            if (system.historyIndex < system.commandHistory.length - 1) {
                 $scope.command = system.commandHistory[++system.historyIndex];
-            else
+            } else {
                 $scope.command = "";
+            }
             $scope.$apply();
             return false;
         });

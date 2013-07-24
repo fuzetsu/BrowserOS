@@ -31,7 +31,12 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
             return fileSystem.newFolder(Array.prototype.slice.call(arguments));
         },
         ls: function() {
-            return fileSystem.listDirectory(arguments[0]);
+            var showHidden = false, dir = arguments[0];
+            if(dir === '-a') {
+                showHidden = true;
+                dir = arguments[1];
+            }
+            return fileSystem.listDirectory(dir, showHidden);
         },
         exit: function() {
             system.sync();
