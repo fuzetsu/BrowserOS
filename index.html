@@ -14,7 +14,7 @@
         </div>
 
         <form ng-submit="execCommand()">
-            <div class="cmdline"><span class="ps1" style="color: {{prColor}};">{{cmdPrompt()}}</span><input type="text" ng-model="command" id="cmd"></div>
+            <div class="cmdline"><span spellcheck="false" class="ps1" style="color: {{prColor}};">{{cmdPrompt()}}</span><input type="text" ng-model="command" id="cmd"></div>
         </form>
 
         <div class="completions">{{completions}}</div>
