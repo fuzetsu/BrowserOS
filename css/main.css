@@ -37,7 +37,7 @@ pre {
 .cmdline input {
     font-family: inherit;
     font-size: inherit;
-    background: inherit;
+    background: transparent;
     color: inherit;
     width: 50%;
     border: none;
