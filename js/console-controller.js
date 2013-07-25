@@ -151,15 +151,36 @@ system.createConsoleController = function(fileSystem) { // TODO - look into remo
                 }
             }
             if(completions.length > 0) {
-                if(completions.length > 1) {
-                    return completions;
-                } else {
-                    if(getLine) {
+                if(getLine) {
+                    if(completions.length === 1) {
                         parsed[parsed.length - 1] = completions[0];
-                        return parsed.join(' ');
+                    } else if(parsed[0] === '') {
+                        return {
+                            comp: completions
+                        };
                     } else {
-                        return completions;
+                        var nomatch  = false,
+                            curIndex = parsed[parsed.length - 1].length,
+                            curMatch = null;
+                        while(!nomatch) {
+                            parsed[parsed.length - 1] = curMatch;
+                            curMatch = completions[0].slice(0, curIndex++);
+                            _.each(completions, function(cmp) {
+                                if(cmp.indexOf(curMatch) !== 0) {
+                                    nomatch = true;
+                                } else if(curIndex > completions[0].length) {
+                                    nomatch = true;
+                                    parsed[parsed.length - 1] = curMatch;
+                                }
+                            });
+                        }
                     }
+                    return {
+                        cmd:  parsed.join(' '),
+                        comp: completions
+                    };
+                } else {
+                    return completions;
                 }
             } else {
                 return null;
@@ -193,10 +214,9 @@ system.createConsoleController = function(fileSystem) { // TODO - look into remo
             $scope.completions = '';
             var completions = getCompletions($scope.command, true);
             if(completions) {
-                if(typeof completions === 'string') {
-                    $scope.command = completions;
-                } else {
-                    $scope.completions = completions.join(', ');
+                $scope.command = completions.cmd || '';
+                if(completions.comp.length > 1) {
+                    $scope.completions = completions.comp.join(', ');
                 }
             }
             $scope.$apply();
