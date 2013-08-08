@@ -113,7 +113,7 @@ system.createConsoleController = function(fileSystem) { // TODO - look into remo
                 processCommand(system.aliases[command], command);
                 return false;
             } else if (commands[command]) {
-                return commands[command].apply(commands, parameters);
+                return commands[command].cmd.apply(commands[command], parameters);
             } else {
                 return "error: command '" + command + "' not found";
             }
@@ -187,10 +187,10 @@ system.createConsoleController = function(fileSystem) { // TODO - look into remo
             }
         };
 
-        Mousetrap.bindGlobal(['ctrl+l', 'command+l'], function(e) {
+        Mousetrap.bindGlobal(['ctrl+l', 'command+k'], function(e) {
             $scope.command = '';
             $scope.completions = '';
-            commands.clear();
+            commands.clear.cmd();
             $scope.$apply();
             return false;
         });
