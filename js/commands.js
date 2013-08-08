@@ -3,33 +3,33 @@ var system = system || {};
 system.createCommands = function($scope, fileSystem) { // TODO - look into removing dependency on system namespace in modules
     var _commands = {
         echo: {
-            usage: 'echo <statement>',
+            usage: ['echo <statement>', 'Prints the specified text to the terminal.'],
             cmd: function() {
                 if (!arguments[0]) return this.usage;
                 return Array.prototype.slice.call(arguments).join(' ');
             }
         },
         date: {
-            usage: 'date',
+            usage: ['date', 'Prints the current date.'],
             cmd: function() {
                 return new Date().toLocaleString();
             }
         },
         clear: {
-            usage: 'clear',
+            usage: ['clear', 'Clears the screen of all output.'],
             cmd: function() {
                 $scope.output = [];
                 return false;
             }
         },
         pwd: {
-            usage: 'pwd',
+            usage: ['pwd', 'Prints the current working directory.'],
             cmd: function() {
                 return fileSystem.getCurrentPath();
             }
         },
         login: {
-            usage: 'login <secret_key>',
+            usage: ['login <secret_key>', 'Specifies the key to associate your cloud syncing with.'],
             cmd: function() {
                 if(!arguments[0]) return this.usage;
                 system.secret.key = arguments[0];
@@ -38,21 +38,25 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
             }
         },
         cd: {
-            usage: 'cd <path>',
+            usage: ['cd <path>', 'Change the working directory to the one specified.'],
             cmd: function() {
                 if (!arguments[0]) return this.usage;
                 return fileSystem.goToFolder(arguments[0]);
             }
         },
         mkdir: {
-            usage: 'mkdir <dir name>',
+            usage: ['mkdir <dir name>', 'Make a directory with the specified name.'],
             cmd: function() {
                 if (!arguments[0]) return this.usage;
                 return fileSystem.newFolder(Array.prototype.slice.call(arguments));
             }
         },
         ls: {
-            usage: ['ls [-a]','-a : shows hidden files'],
+            usage: [
+                'ls [-a] [<path>]',
+                'Lists the contents of the current directory or of the specified path.',
+                '-a : shows hidden files'
+            ],
             cmd: function() {
                 var showHidden = false, dir = arguments[0];
                 if(dir === '-a') {
@@ -70,7 +74,7 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
             }
         },
         rm: {
-            usage: 'rm <file name>',
+            usage: ['rm <file name>','Removes the specified file or directory.'],
             cmd: function() {
                 if (!arguments[0]) return this.usage;
                 var output = [],
@@ -91,7 +95,7 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
             }
         },
         cat: {
-            usage:'cat <file name>',
+            usage: ['cat <file name>','Display the contents of the specified text file.'],
             cmd: function() { // TODO parse first parameter for path and read
                 if (!arguments[0]) return this.usage;
                 var output = [],
@@ -108,7 +112,7 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
             }
         },
         touch: {
-            usage: 'touch <file name>',
+            usage: ['touch <file name>', 'Create a text file with the specified file name.'],
             cmd: function() { // TODO also detect path
                 if (!arguments[0]) return this.usage;
                 return fileSystem.createFile(Array.prototype.slice.call(arguments), system.types.TEXT);
@@ -176,7 +180,7 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
                     result = _commands[arguments[0]] && _commands[arguments[0]].usage;
                 } else {
                     result = ["You can use the following commands:"];
-                    result.push(_.keys(this).join(', '));
+                    result.push(_.keys(_commands).join(', '));
                 }
                 return result;
             }
