@@ -35,7 +35,7 @@
         } else {
             keys = (whatToSync instanceof Array) ? whatToSync : [whatToSync];
         }
-        if(cloud) {
+        if(cloud && system.secret.key) {
             openStorage.set(system, function(success) {
                 if(success) {
                     console.log('synced system to cloud');
