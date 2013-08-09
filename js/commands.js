@@ -38,6 +38,9 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
             }
         },
         cd: {
+            comp: {
+                1: [system.types.DIR]
+            },
             usage: ['cd <path>', 'Change the working directory to the one specified.'],
             cmd: function() {
                 if (!arguments[0]) return this.usage;
@@ -52,6 +55,10 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
             }
         },
         ls: {
+            comp: {
+                1: ['-a'],
+                any: [system.types.DIR]
+            },
             usage: [
                 'ls [-a] [<path>]',
                 'Lists the contents of the current directory or of the specified path.',
@@ -74,6 +81,7 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
             }
         },
         rm: {
+            comp: [system.types.ALL],
             usage: ['rm <file name>','Removes the specified file or directory.'],
             cmd: function() {
                 if (!arguments[0]) return this.usage;
@@ -95,6 +103,7 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
             }
         },
         cat: {
+            comp: [system.types.TEXT],
             usage: ['cat <file name>','Display the contents of the specified text file.'],
             cmd: function() { // TODO parse first parameter for path and read
                 if (!arguments[0]) return this.usage;
@@ -119,6 +128,9 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
             }
         },
         history: {
+            comp: {
+                1: ['-c']
+            },
             usage: ['history [-c]', 'Displays the command history.', '-c : clears the history'],
             cmd: function() {
                 var result = [];
@@ -135,6 +147,9 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
             }
         },
         alias: {
+            comp: {
+                1: ['set','del']
+            },
             usage: [
                 'alias <set|del> <alias_name> [<command_def>]',
                 'Creates or deletes an shortcut to a command.',
@@ -173,6 +188,9 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
             }
         },
         help: {
+            comp: {
+                1: null // this is set at the bottom to --> _.keys(_commands)
+            },
             usage: ['help [<command_name>]','Show help for a command or list all available commands.'],
             cmd: function() {
                 var result;
@@ -180,12 +198,15 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
                     result = _commands[arguments[0]] && _commands[arguments[0]].usage;
                 } else {
                     result = ["You can use the following commands:"];
-                    result.push(_.keys(_commands).join(', '));
+                    result.push(this.comp[1].join(', '));
                 }
                 return result;
             }
         },
         color: {
+            comp: {
+                1: ['-b','-f','-p']
+            },
             usage: [
                 'color <-b|-f|-p> <color>',
                 'Change the color settings for the terminal.',
@@ -208,6 +229,9 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
             }
         },
         font: {
+            comp: {
+                1: ['-s','-f']
+            },
             usage: [
                 'font <-s|-f> <size|family>',
                 'Changes the font settings for the terminal.',
@@ -241,5 +265,6 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
             }
         }
     };
+    _commands.help.comp[1] = _.keys(_commands);
     return _commands;
 };
