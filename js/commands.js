@@ -6,7 +6,42 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
             usage: ['echo <statement>', 'Prints the specified text to the terminal.'],
             cmd: function() {
                 if (!arguments[0]) return this.usage;
-                return Array.prototype.slice.call(arguments).join(' ');
+                var args = [].slice.call(arguments),
+                    output = [],
+                    fileName, content, mainIndex,
+                    indexOfGt = _.indexOf(args, '>'),
+                    indexOfGt2 = _.indexOf(args, '>>');
+                if(indexOfGt !== -1 || indexOfGt2 !== -1) {
+                    mainIndex = (indexOfGt > indexOfGt2) ? indexOfGt : indexOfGt2;
+                    fileName = args.slice(mainIndex + 1);
+                    if(!fileName || fileName.length < 1) {
+                        return args.join(' ');
+                    } else {
+                        fileName = fileName[0];
+                        content = args.slice(0, mainIndex).join(' ');
+                        fileSystem.doForEachFile([fileName], system.types.TEXT, function(file, index) {
+                            if(file) {
+                                if(indexOfGt > indexOfGt2) {
+                                    file.content = [content];
+                                } else {
+                                    file.content.push(content);
+                                }
+                                fileSystem.updateTimestamp(file);
+                            } else {
+                                fileSystem.createFile([fileName], system.types.TEXT, function(file) {
+                                    if(indexOfGt > indexOfGt2) {
+                                        file.content = [content];
+                                    } else {
+                                        file.content.push(content);
+                                    }                                });
+                                output.push("success: created " + system.typeTrans[system.types.TEXT] + " '" + fileName + "'");
+                            }
+                        });
+                        return output;
+                    }
+                } else {
+                    return args.join(' ');
+                }
             }
         },
         date: {
@@ -112,7 +147,7 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
                 fileSystem.doForEachFile(arguments, system.types.TEXT, function(file, index) {
                     var filePath = originalArguments[index];
                     if(file) {
-                        output.push(file.content);
+                        output = output.concat(file.content);
                     } else {
                         output.push("error: " + system.typeTrans[system.types.TEXT] + " '" + filePath + "' does not exist");
                     }
@@ -282,7 +317,7 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
                     }
                     else
                     {
-                        output.push("error: " + system.typeTrans[system.types.TEXT] + " '" + args[index] + "' does not exist");
+                        output.push("error: file '" + args[index] + "' does not exist");
                     }
                 });
                 return output;
