@@ -1,4 +1,4 @@
-window.system = window.system || {};
+var system = system || {};
 
 system.createConsoleController = function(fileSystem) { // TODO - look into removing dependency on system namespace in modules
 
@@ -121,67 +121,148 @@ system.createConsoleController = function(fileSystem) { // TODO - look into remo
 
         // takes current command text and processes it to find a possible completion
         var getCompletions = function(argumentLine, getLine) {
+            // parse the argumentline
             var parsed = parseArgumentLine(argumentLine),
                 completions = [],
-                finished = false;
+                finished = false,
+                curCommand = commands[parsed[0]] || {};
+            // if there are less than 2 arguments
             if(parsed.length < 2) {
+                // then suggest a command to the user based on their current input (or blank)
                 _.each(commands, function(value, key) {
                     if(key.indexOf(parsed[0]) === 0) {
                         completions.push(key);
                     }
                 });
             }
+            // if a completion was found and the completion is the same
             if(completions.length === 1 && completions[0] === parsed[0]) {
+                // clear the suggested completions because we already have it
                 completions = [];
+                // add a new argument to suggest
                 parsed.push('');
             }
+            // if there are more than one arguments
             if(parsed.length > 1) {
-                while(!finished) {
-                    _.each(system.fileSystem.currentFolder.children, function(child) {
-                        if(child.name.indexOf(parsed[parsed.length - 1]) === 0) {
-                            completions.push(child.name);
+                var comp = curCommand.comp,
+                    compForAnyIndex = comp && comp.any,
+                    compForThisIndex = null,
+                    acceptedTypes = [],
+                    acceptedTypesForThisIndex = [],
+                    allTypes = null;
+                // if there are no completions for this command then exit
+                if(!comp) {
+                    console.log('no completions for this command');
+                    return null;
+                }
+                // loop function to find matches within completions
+                var findMatches = function(comp) {
+                    if(comp.indexOf(parsed[parsed.length - 1]) === 0) {
+                        completions.push(comp);
+                    }
+                };
+                // loop function to splice any type completions for a specific index
+                var extractTempTypeComp = function(comp, index, arr) {
+                    if(comp in system.types) {
+                        acceptedTypesForThisIndex.push(arr.splice(index, 1)[0]);
+                    }
+                };
+                // extract type completions from the any index completions (if defined)
+                if(compForAnyIndex) {
+                    compForAnyIndex = compForAnyIndex.slice();
+                     _.each(compForAnyIndex, function(comp, index, arr) {
+                        if(_.any(system.types, function(type) { return type === comp;})) {
+                            acceptedTypes.push(arr.splice(index, 1)[0]);
                         }
                     });
+                }
+                // loop until we're finished (i.e. until we have suggestions)
+                while(!finished) {
+                    compForThisIndex = comp[parsed.length - 1];
+                    if(compForThisIndex) {
+                        compForThisIndex = compForThisIndex.slice();
+                        acceptedTypesForThisIndex = [];
+                        _.each(compForThisIndex, extractTempTypeComp);
+                        _.each(compForThisIndex, findMatches);
+                    }
+                    if(compForAnyIndex) {
+                        _.each(compForAnyIndex, findMatches);
+                    }
+                    allTypes = acceptedTypes.concat(acceptedTypesForThisIndex);
+                    console.log(acceptedTypes);
+                    if(allTypes.length > 0) {
+                        // add to the completions all the files and folders in the current directory that match the acceptedtypes and the last argumemt
+                        _(fileSystem.currentFolder.children)
+                            .filter(function(child) {
+                                return _.indexOf(allTypes, child.type) !== -1;
+                            })
+                            .map('name')
+                            .each(findMatches);
+                    }
+                    // if we only found one completion and the completion is already entered into the last argument
                     if(completions.length === 1 && completions[0] === parsed[parsed.length - 1]) {
+                        // then clear the array because there's no point suggesting something we already have
                         completions = [];
+                        // add another argument to suggest
                         parsed.push('');
                     } else {
+                        // we found new suggestions so we're done here
                         finished = true;
                     }
                 }
             }
+            // if we have at least 1 completion at this point
             if(completions.length > 0) {
+                // if we want to get the command line
                 if(getLine) {
+                    // if there is only one completion
                     if(completions.length === 1) {
+                        // then we actually want to automatically fill the last argument with that instead of suggesting it
                         parsed[parsed.length - 1] = completions[0];
+                    // otherwise if the first argument is not there (i.e. this is the first request for completions)
                     } else if(parsed[0] === '') {
+                        // just return the completions
                         return {
                             comp: completions
                         };
                     } else {
+                        /* this segment of code completes the command up to the farthest common letter among the completions */
                         var nomatch  = false,
+                            // current index is equal to the length of the last argument
                             curIndex = parsed[parsed.length - 1].length,
-                            curMatch = null;
-                        while(!nomatch) {
-                            parsed[parsed.length - 1] = curMatch;
-                            curMatch = completions[0].slice(0, curIndex++);
-                            _.each(completions, function(cmp) {
+                            curMatch = null,
+                            // loop func to check if the completions match up to the current match
+                            checkCompletions = function(cmp) {
+                                // if the completion doens't match the current match then we don't have a match
                                 if(cmp.indexOf(curMatch) !== 0) {
                                     nomatch = true;
+                                // if the current index is bigger than the length of the first completion then we don't have a match
                                 } else if(curIndex > completions[0].length) {
                                     nomatch = true;
+                                    // also since the curindex is greater than the completion we need to set the last argument to the current match
                                     parsed[parsed.length - 1] = curMatch;
                                 }
-                            });
+                            };
+                        // loop until we can't find a match
+                        while(!nomatch) {
+                            // the last argument is equal to the current match
+                            parsed[parsed.length - 1] = curMatch;
+                            // the current match is the letters in the first completion up to the current index
+                            curMatch = completions[0].slice(0, curIndex++);
+                            // loop through the completions
+                            _.each(completions, checkCompletions);
                         }
                     }
+                    // return the newly filled argument line and the completions
                     return {
                         cmd:  parsed.join(' '),
                         comp: completions
                     };
+                // or just return the completions
                 } else {
                     return completions;
                 }
+            // no completions were found, so we'll just return null
             } else {
                 return null;
             }
