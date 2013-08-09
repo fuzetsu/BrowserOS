@@ -263,6 +263,30 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
                     return lastNumber + parseFloat(number, 10);
                 }, 0) / arguments.length || "error: input must be valid numbers.";
             }
+        },
+        file: {
+            comp: {
+                any: [system.types.ALL]
+            },
+            usage: ['file <file name>', 'Get file information.'],
+            cmd: function() {
+                if(!arguments[0]) return this.usage;
+                var output = [],
+                    args = arguments;
+                fileSystem.doForEachFile([arguments[0]], system.types.ALL, function(file, index){
+                    if(file){
+                        output.push('Name:' + file.name);
+                        output.push('Parent:' + file.parent);
+                        output.push('Type:' + system.typeTrans[file.type]);
+                        output.push('Updated:' + file.updated);
+                    }
+                    else
+                    {
+                        output.push("error: " + system.typeTrans[system.types.TEXT] + " '" + args[index] + "' does not exist");
+                    }
+                });
+                return output;
+            }
         }
     };
     _commands.help.comp[1] = _.keys(_commands);

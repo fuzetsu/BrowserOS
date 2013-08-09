@@ -28,7 +28,8 @@ system.createFileSystem = function(root) {
                 var newFile = {
                     name: fileName,
                     parent: parentPath,
-                    type: type
+                    type: type,
+                    updated: new Date().toLocaleString()
                 };
                 switch(type) {
                     case system.types.DIR:
