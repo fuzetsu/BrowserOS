@@ -6,9 +6,13 @@ system.createFileSystem = function(root) {
         init: function() {
             this.currentFolder = this.root;
         },
-        createFile: function(files, type) {
+        createFile: function(files, type, fn) {
             var output = [];
             _.each(files, function(file) {
+                // if the file is not defined then don't create it, ya dingus
+                if(!file) {
+                    return;
+                }
                 var prefix       = this.getPrefix(file),
                     parentFolder = this.getFolder(prefix),
                     fileName     = this.getBasename(file);
@@ -36,10 +40,11 @@ system.createFileSystem = function(root) {
                         newFile.children = [];
                         break;
                     case system.types.TEXT:
-                        newFile.content = '';
+                        newFile.content = [];
                         break;
                 }
                 parentFolder.children.push(newFile);
+                fn(newFile);
                 output.push("success: created " + system.typeTrans[type] + " '" + fileName + "' in directory '" + parentPath + "'");
             }, this);
             system.sync('root');
@@ -155,6 +160,11 @@ system.createFileSystem = function(root) {
                 }).sort().join(', ') || "empty directory";
             } else {
                 return 'error: invalid path';
+            }
+        },
+        updateTimestamp: function(file) {
+            if(file) {
+                file.updated = (new Date()).toLocaleString();
             }
         }
     };
