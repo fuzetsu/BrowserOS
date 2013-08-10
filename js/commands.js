@@ -240,7 +240,10 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
         },
         color: {
             comp: {
-                1: ['-b','-f','-p']
+                specific: {
+                    comp: ['-b','-f','-p'],
+                    indexes: [1,3,5]
+                }
             },
             usage: [
                 'color <-b|-f|-p> <color>',
@@ -265,7 +268,10 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
         },
         font: {
             comp: {
-                1: ['-s','-f']
+                specific: {
+                    comp: ['-s','-f'],
+                    indexes: [1,3]
+                }
             },
             usage: [
                 'font <-s|-f> <size|family>',
