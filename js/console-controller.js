@@ -135,7 +135,7 @@ system.createConsoleController = function(fileSystem) { // TODO - look into remo
                     }
                 });
             }
-            // if a completion was found and the completion is the same
+            // if a completion was found and the completion is the same as what the user currently has
             if(completions.length === 1 && completions[0] === parsed[0]) {
                 // clear the suggested completions because we already have it
                 completions = [];
@@ -145,7 +145,7 @@ system.createConsoleController = function(fileSystem) { // TODO - look into remo
             // if there are more than one arguments
             if(parsed.length > 1) {
                 var comp = curCommand.comp,
-                    compForAnyIndex = comp && comp.any,
+                    compForAnyIndex = comp && (comp.any || (comp instanceof Array && comp)),
                     compForThisIndex = null,
                     acceptedTypes = [],
                     acceptedTypesForThisIndex = [],
@@ -163,7 +163,7 @@ system.createConsoleController = function(fileSystem) { // TODO - look into remo
                 };
                 // loop function to splice any type completions for a specific index
                 var extractTempTypeComp = function(comp, index, arr) {
-                    if(comp in system.types) {
+                    if(_.any(system.types, function(type) { return type === comp;})) {
                         acceptedTypesForThisIndex.push(arr.splice(index, 1)[0]);
                     }
                 };
@@ -189,15 +189,19 @@ system.createConsoleController = function(fileSystem) { // TODO - look into remo
                         _.each(compForAnyIndex, findMatches);
                     }
                     allTypes = acceptedTypes.concat(acceptedTypesForThisIndex);
-                    console.log(acceptedTypes);
                     if(allTypes.length > 0) {
-                        // add to the completions all the files and folders in the current directory that match the acceptedtypes and the last argumemt
-                        _(fileSystem.currentFolder.children)
-                            .filter(function(child) {
-                                return _.indexOf(allTypes, child.type) !== -1;
-                            })
-                            .map('name')
-                            .each(findMatches);
+                        // if the accepted types contains the ALL wildcard just return all the children
+                        if(_.indexOf(allTypes, system.types.ALL) !== -1) {
+                            _(fileSystem.currentFolder.children).map('name').each(findMatches);
+                        } else {
+                            // add to the completions all the files and folders in the current directory that match the acceptedtypes and the last argumemt
+                            _(fileSystem.currentFolder.children)
+                                .filter(function(child) {
+                                    return _.indexOf(allTypes, child.type) !== -1;
+                                })
+                                .map('name')
+                                .each(findMatches);
+                        }
                     }
                     // if we only found one completion and the completion is already entered into the last argument
                     if(completions.length === 1 && completions[0] === parsed[parsed.length - 1]) {
