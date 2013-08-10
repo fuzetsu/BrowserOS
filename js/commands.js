@@ -309,14 +309,12 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
                 var output = [],
                     args = arguments;
                 fileSystem.doForEachFile([arguments[0]], system.types.ALL, function(file, index){
-                    if(file){
+                    if(file) {
                         output.push('Name:' + file.name);
                         output.push('Parent:' + file.parent);
                         output.push('Type:' + system.typeTrans[file.type]);
                         output.push('Updated:' + file.updated);
-                    }
-                    else
-                    {
+                    } else {
                         output.push("error: file '" + args[index] + "' does not exist");
                     }
                 });
