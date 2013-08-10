@@ -146,6 +146,7 @@ system.createConsoleController = function(fileSystem) { // TODO - look into remo
             if(parsed.length > 1) {
                 var comp = curCommand.comp,
                     compForAnyIndex = comp && (comp.any || (comp instanceof Array && comp)),
+                    compForSpecificIndex = comp && comp.specific,
                     compForThisIndex = null,
                     acceptedTypes = [],
                     acceptedTypesForThisIndex = [],
@@ -178,16 +179,32 @@ system.createConsoleController = function(fileSystem) { // TODO - look into remo
                 }
                 // loop until we're finished (i.e. until we have suggestions)
                 while(!finished) {
+                    // try to find a list of completions matching this argument number
                     compForThisIndex = comp[parsed.length - 1];
+                    // if we found one
                     if(compForThisIndex) {
+                        // create a copy of it
                         compForThisIndex = compForThisIndex.slice();
+                        // clear the old accepted types for this index
                         acceptedTypesForThisIndex = [];
+                        // and extract the types and matches from them
                         _.each(compForThisIndex, extractTempTypeComp);
                         _.each(compForThisIndex, findMatches);
                     }
+                    // if there was completions for a specific index defined then see if this is one of those indexes
+                    if(compForSpecificIndex && _.indexOf(compForSpecificIndex.indexes, parsed.length - 1) !== -1) {
+                        // then create a copy of the completions
+                        compForThisIndex = compForSpecificIndex.comp.slice();
+                        // and extract the types and matches from them
+                        _.each(compForThisIndex, extractTempTypeComp);
+                        _.each(compForThisIndex, findMatches);
+                    }
+                    // if there are some global comps defined for this functions
                     if(compForAnyIndex) {
+                        // then extract any that match
                         _.each(compForAnyIndex, findMatches);
                     }
+                    // create an array that joins the global type matches and the ones for this index
                     allTypes = acceptedTypes.concat(acceptedTypesForThisIndex);
                     if(allTypes.length > 0) {
                         // if the accepted types contains the ALL wildcard just return all the children
@@ -244,7 +261,7 @@ system.createConsoleController = function(fileSystem) { // TODO - look into remo
                                 } else if(curIndex > completions[0].length) {
                                     nomatch = true;
                                     // also since the curindex is greater than the completion we need to set the last argument to the current match
-                                    parsed[parsed.length - 1] = curMatch;
+                                    //parsed[parsed.length - 1] = curMatch;
                                 }
                             };
                         // loop until we can't find a match
