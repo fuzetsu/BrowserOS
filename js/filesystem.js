@@ -33,7 +33,7 @@ system.createFileSystem = function(root) {
                     name: fileName,
                     parent: parentPath,
                     type: type,
-                    updated: new Date().toLocaleString()
+                    updated: (new Date()).toLocaleString()
                 };
                 switch(type) {
                     case system.types.DIR:
@@ -44,7 +44,9 @@ system.createFileSystem = function(root) {
                         break;
                 }
                 parentFolder.children.push(newFile);
-                fn(newFile);
+                if(typeof fn === 'function') {
+                    fn(newFile);
+                }
                 output.push("success: created " + system.typeTrans[type] + " '" + fileName + "' in directory '" + parentPath + "'");
             }, this);
             system.sync('root');
@@ -59,7 +61,6 @@ system.createFileSystem = function(root) {
                 lastFolder     = this.currentFolder,
                 index          = 0,
                 nextFolderName = folders[index++];
-            console.log(nextFolderName);
             if (nextFolderName === 'root' || nextFolderName === '') {
                 curFolder = this.root;
                 lastFolder = curFolder;
