@@ -1,6 +1,81 @@
 var system = system || {};
 
 system.createCommands = function($scope, fileSystem) { // TODO - look into removing dependency on system namespace in modules
+
+    /**
+
+    The structure for implementing a command is as follows.
+
+    // fisrt up is the command name, this is what the user has to type in to call the command
+    cmd_name: {
+
+        ############## COMP {Array or Object} [OPTIONAL] ##############
+
+        // there are a few different ways of implementing tab completion for your command... Only one can be used at a time.
+
+        // this is the first and most simple way of defining tab completions, these 2 options will be offered whenever the user presses tab
+        // and this command is being used
+        comp: ["hello", "goodbye"],
+
+        // this is the second method, it allows more fine grain control over the completions
+        comp: {
+
+            // the keys (1 and 2) indicate which argument number the array of options will be suggested for
+            1: ["hello", "hello2"],
+            2: ["goodbye", "goodbye2"]
+
+            // when the key 'any' is used the array of completions will be suggested for any index
+            any: ["1", "2", "3"]
+
+            // the specific sub-object allows you to define an array of completions that can apply to multiple indexes easily
+            specific: {
+
+                // the comp array as usual defines the completions that will be suggested
+                comp: ["awe","full","moon"],
+
+                // the indexes array defines which indexes these completions will be suggested for
+                indexes: [3,6,9]
+
+            }
+        },
+
+        ############## USAGE {Array} [OPTIONAL] ##############
+
+        // the usage will be printed when the user provides bad parameters (must be handled by the implementation)
+        // or when the 'help' command is used in conjunction with the name of your command
+        // each element in the array is a new line in the print out
+        usage: ["usage info"],
+
+        ############## CMD {Function} [REQUIRED] ##############
+
+        // this is the function that will be called to execute the command's logic
+        cmd: function() {
+
+            // in the function any string returned will be output on the terminal
+            // if an array is returned then the each element in the array corresponds to a line of output
+            var output = [];
+
+            // using the the 'this' keyword to access a property of the parent object
+            output.concat(this.usage || 'The usage property was not defined...');
+            return output;
+
+        },
+
+        ############## CUSTOM {Any} [OPTIONAL] ##############
+
+        // if you feel the need to separate out the logic of your function on small scale then you can create
+        // other functions or properties in your commands object
+        // they can be accessed with using the 'this' keyword followed by the property name
+        // as demonstrated by the 'cmd' function definition above
+
+        date_started: Date.now
+
+    }
+
+    Create an object that matches this structure and place it somewhere in the _commands object below.
+
+    **/
+
     var _commands = {
         echo: {
             usage: ['echo <statement>', 'Prints the specified text to the terminal.'],
