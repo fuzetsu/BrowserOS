@@ -11,9 +11,11 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
 
         ############## COMP {Array or Object} [OPTIONAL] ##############
 
-        // there are a few different ways of implementing tab completion for your command... Only one can be used at a time.
+        // there are a few different ways of implementing tab completion for your command...
+        // Only one can be used at a time.
 
-        // this is the first and most simple way of defining tab completions, these 2 options will be offered whenever the user presses tab
+        // this is the first and most simple way of defining tab completions
+        // these 2 options will be offered whenever the user presses tab
         // and this command is being used
         comp: ["hello", "goodbye"],
 
@@ -27,7 +29,8 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
             // when the key 'any' is used the array of completions will be suggested for any index
             any: ["1", "2", "3"]
 
-            // the specific sub-object allows you to define an array of completions that can apply to multiple indexes easily
+            // the specific sub-object allows you to define an array of completions
+            // that can applied to multiple indexes easily
             specific: {
 
                 // the comp array as usual defines the completions that will be suggested
@@ -109,7 +112,8 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
                                     } else {
                                         file.content.push(content);
                                     }                                });
-                                output.push("success: created " + system.typeTrans[system.types.TEXT] + " '" + fileName + "'");
+                                output.push("success: created " + system.typeTrans[system.types.TEXT] +
+                                    " '" + fileName + "'");
                             }
                         });
                         return output;
@@ -201,9 +205,11 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
                     var filePath = originalArguments[index];
                     if(file) {
                         if(fileSystem.removeFile(file)) {
-                            output.push("success: removed " + system.typeTrans[file.type] + " '" + filePath + "'");
+                            output.push("success: removed " + system.typeTrans[file.type] + " '" +
+                                filePath + "'");
                         } else {
-                            output.push("error: unable to remove " + system.typeTrans[file.type] + " '" + filePath + "'");
+                            output.push("error: unable to remove " + system.typeTrans[file.type] +
+                                " '" + filePath + "'");
                         }
                     } else {
                         output.push("error: '" + filePath + "' does not exist");
@@ -224,7 +230,8 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
                     if(file) {
                         output = output.concat(file.content);
                     } else {
-                        output.push("error: " + system.typeTrans[system.types.TEXT] + " '" + filePath + "' does not exist");
+                        output.push("error: " + system.typeTrans[system.types.TEXT] + " '" +
+                            filePath + "' does not exist");
                     }
                 });
                 return output;
@@ -273,7 +280,9 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
                         aliasName = arguments[1],
                         command   = arguments[2],
                         returnMsg;
-                    if((action === "del" && arguments.length !== 2) || (action === "set" && arguments.length !== 3)) return this.usage;
+                    if((action === "del" && arguments.length !== 2) || (action === "set" && arguments.length !== 3)) {
+                        return this.usage;
+                    }
                     if(action === "set") {
                         system.aliases[aliasName] = command;
                         returnMsg = "created alias '" + aliasName + "=" + command + "'";
