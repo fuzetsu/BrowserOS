@@ -144,14 +144,31 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
         },
         login: {
             usage: [
-                'login <secret_key> [-f]',
-                'Specifies the key to associate your cloud syncing with.',
-                '-f : Ignores the timestamp and replaces local system with the cloud system'
+                'login <secret_key>',
+                'Sets the key to associate with your cloud storage.',
+                'The key must be 5-128 characers and (for security purposes) very unique.'
             ],
             cmd: function() {
                 if(!arguments[0]) return this.usage;
                 system.secret.key = arguments[0];
                 system.openStorage.user_key = arguments[0];
+                return "Successfully set sync key";
+            }
+        },
+        sync: {
+            comp: {
+                1: ['get','set','auto']
+            },
+            usage: [
+                'sync <send|get|auto>',
+                'Gets/Sends data to/from the cloud.',
+                'get : Ignores the timestamp and replaces local system with the cloud system.',
+                'set : Ignores the timestamp and replaces cloud system with the local system.',
+                'auto: Uses the timestamp to determine the more recent data and uses it.'
+            ],
+            cmd: function() {
+                if(!arguments[0]) return this.usage;
+                if(!system.secret.key) return "No sync key set. Call the login command first with your chosen key.";
                 var doSync = function(replaceCloud) {
                     if(replaceCloud) {
                         system.sync('', true);
@@ -160,6 +177,7 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
                         console.log('local version is out of date. Updating!~');
                         system.openStorage.get(system.syncPropNames, function(data) {
                             _.each(data, function(value, key) {
+                                console.log(key, value);
                                 system[key] = value;
                             });
                             system.sync('');
@@ -169,9 +187,11 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
                     }
                 };
                 // if the user has indicated to forcefully get the data from the cloud
-                if(arguments[1] === '-f') {
+                if(arguments[0] === 'set') {
+                    doSync(true);
+                } else if(arguments[0] === 'get') {
                     doSync(false);
-                } else {
+                } else if(arguments[0] === 'auto') {
                     system.openStorage.get('secret', function(data) {
                         var replaceCloud = false;
                         if(data && data.secret && data.secret.timestamp) {
@@ -185,6 +205,8 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
                         }
                         doSync(replaceCloud);
                     });
+                } else {
+                    return ['Invalid Option. See usage.'].concat(this.usage);
                 }
                 return "Request processing in background...";
             }
