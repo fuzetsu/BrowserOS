@@ -261,7 +261,7 @@ system.createConsoleController = function(fileSystem) { // TODO - look into remo
                                 } else if(curIndex > completions[0].length) {
                                     nomatch = true;
                                     // also since the curindex is greater than the completion we need to set the last argument to the current match
-                                    //parsed[parsed.length - 1] = curMatch;
+                                    parsed[parsed.length - 1] = curMatch;
                                 }
                             };
                         // loop until we can't find a match
