@@ -11,52 +11,14 @@
         ALL:  '*'
     };
 
+    // translation of type definitions
     system.typeTrans = {
         d: 'directory',
         t: 'text file'
     };
 
-    // register syncable objects
-    system.registerSyncObjects = function(defs) {
-        defs = (defs instanceof Array) ? defs : [defs];
-        _.each(defs, function(def) {
-            if(!localStorage[def.name || def]) {
-                localStorage[def.name || def] = JSON.stringify(def.base || {});
-            }
-            system[def.name || def] = JSON.parse(localStorage[def.name || def]);
-        });
-    };
-
-    // define syncing function
-    system.sync = function(whatToSync, cloud) {
-        var keys, data;
-        if (!whatToSync) {
-            keys = _.keys(system);
-        } else {
-            keys = (whatToSync instanceof Array) ? whatToSync : [whatToSync];
-        }
-        if(cloud && system.secret.key) {
-            openStorage.set(system, function(success) {
-                if(success) {
-                    console.log('synced system to cloud');
-                } else {
-                    console.log('failed to sync system to cloud');
-                }
-            });
-        }
-        _.each(keys, function(key) {
-            if (system[key]) {
-                localStorage[key] = JSON.stringify(system[key]);
-            }
-        });
-        console.log(localStorage.root);
-    };
-
-    // hidden text input element where commands are entered
-    var cmd = document.getElementById('cmd');
-
-    // register objects to be synced
-    system.registerSyncObjects([
+    // definition of syncable objects
+    system.syncDef = [
         // user's aliases
         'aliases',
         // a history of inputted commands
@@ -79,10 +41,76 @@
         {
             name: 'secret',
             base: {
-                key: null
+                key: null,
+                timestamp: Date.now()
             }
         }
-    ]);
+    ];
+
+    // register syncable objects
+    system.registerSyncObjects = function(defs) {
+        defs = (defs instanceof Array) ? defs : [defs];
+        _.each(defs, function(def) {
+            if(!localStorage[def.name || def]) {
+                localStorage[def.name || def] = JSON.stringify(def.base || {});
+            }
+            system[def.name || def] = JSON.parse(localStorage[def.name || def]);
+        });
+    };
+
+    system.syncPropNames = (function() {
+        var syncPropNames = [];
+        _.each(system.syncDef, function(prop) {
+            if(typeof prop === 'string') {
+                syncPropNames.push(prop);
+            } else if(typeof prop === 'object') {
+                syncPropNames.push(prop.name);
+            }
+        });
+        return syncPropNames;
+    })();
+
+    // gets the syncable properties of the current system object
+    system.getSyncProps = function() {
+        var syncProps = {};
+        _.each(system.syncPropNames, function(prop) {
+            syncProps[prop] = system[prop];
+        });
+        return syncProps;
+    };
+
+    // define syncing function
+    system.sync = function(whatToSync, cloud) {
+        var keys, data;
+        if (!whatToSync) {
+            keys = _.keys(system);
+        } else {
+            keys = (whatToSync instanceof Array) ? whatToSync : [whatToSync];
+        }
+        if(cloud && system.secret.key) {
+            system.openStorage.set(system.getSyncProps(), function(success) {
+                if(success) {
+                    console.log('synced system to cloud');
+                } else {
+                    console.log('failed to sync system to cloud');
+                }
+            });
+        }
+        _.each(keys, function(key) {
+            if (system[key]) {
+                localStorage[key] = JSON.stringify(system[key]);
+            }
+        });
+        // update the sync timestamp
+        system.secret.timestamp = Date.now();
+        console.log(localStorage.root);
+    };
+
+    // hidden text input element where commands are entered
+    var cmd = document.getElementById('cmd');
+
+    // register objects to be synced
+    system.registerSyncObjects(system.syncDef);
 
     // set the user key for open storage
     system.openStorage.user_key = system.secret.key;

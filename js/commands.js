@@ -143,12 +143,50 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
             }
         },
         login: {
-            usage: ['login <secret_key>', 'Specifies the key to associate your cloud syncing with.'],
+            usage: [
+                'login <secret_key> [-f]',
+                'Specifies the key to associate your cloud syncing with.',
+                '-f : Ignores the timestamp and replaces local system with the cloud system'
+            ],
             cmd: function() {
                 if(!arguments[0]) return this.usage;
                 system.secret.key = arguments[0];
                 system.openStorage.user_key = arguments[0];
-                //system.sync('', true); STILL TESTING
+                var doSync = function(replaceCloud) {
+                    if(replaceCloud) {
+                        system.sync('', true);
+                    } else {
+                        // replace current system data with cloud data
+                        console.log('local version is out of date. Updating!~');
+                        system.openStorage.get(system.syncPropNames, function(data) {
+                            _.each(data, function(value, key) {
+                                system[key] = value;
+                            });
+                            system.sync('');
+                            console.log('download and installed cloud version of system');
+                            window.location.reload();
+                        });
+                    }
+                };
+                // if the user has indicated to forcefully get the data from the cloud
+                if(arguments[1] === '-f') {
+                    doSync(false);
+                } else {
+                    system.openStorage.get('secret', function(data) {
+                        var replaceCloud = false;
+                        if(data && data.secret && data.secret.timestamp) {
+                            if(data.secret.timestamp > system.secret.timestamp) {
+                                replaceCloud = false;
+                            } else {
+                                replaceCloud = true;
+                            }
+                        } else {
+                            replaceCloud = false;
+                        }
+                        doSync(replaceCloud);
+                    });
+                }
+                return "Request processing in background...";
             }
         },
         cd: {
