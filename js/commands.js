@@ -155,6 +155,20 @@ system.createCommands = function($scope, fileSystem) { // TODO - look into remov
                 return "Successfully set sync key";
             }
         },
+        cloud_debug: { // TESTING
+            usage: ['cloud_debug <key_to_get>','Allows a dev to debug cloud data.'],
+            cmd: function() {
+                if(!system.secret.key) return "No sync key set.";
+                system.openStorage.get(arguments[0], function(data) {
+                    if(data) {
+                        console.log(data);
+                    } else {
+                        console.log('That key is not set in the cloud');
+                    }
+                });
+                return "Look at the browser console for the results.";
+            }
+        },
         sync: {
             comp: {
                 1: ['get','set','auto']

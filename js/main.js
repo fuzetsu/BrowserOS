@@ -1,8 +1,8 @@
 (function() {
     "use strict";
 
-    // namespace to hold global system related variables
-    window.system = window.system || {};
+    // TESTING, log system to confirm that the other scripts have loaded
+    console.log(system);
 
     // global type definitions
     system.types = {
